@@ -63,7 +63,7 @@ Designed the database schema and built the `API's using Spring Boot`.
 |504|Gateway Timeout|
 
 ## Schema Design
-![schema design](https://raw.githubusercontent.com/kanojiaD/BlogApplication/master/Schema_Design.png?token=ATMHGIU7RDE74SSJNE6AFW3BECLYC)
+![schema design](https://raw.githubusercontent.com/kanojiaD/BlogApplication/master/Schema_Design.png?token=ATMHGIRIMDLJPD5JSUIKHNTBECY5I)
 ## API Contract
 |Functionality|Path |Method |Return Code|
 |-|-|-|-|
