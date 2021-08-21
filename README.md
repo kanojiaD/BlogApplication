@@ -1,7 +1,7 @@
 ![logo](https://www.dariawan.com/media/images/tech-spring-boot.width-1024.png)
 
 ## 📚 BlogApplication
-This is a blog Application in which user can create his own blog and that blog could be read by any user but only author can update the blog.
+This is a blog Application in which user can create his own blog and that blog could be read by any user but only author can update abd delete the blog.
 
 Designed the database schema and built the `API's using Spring Boot`.
 
@@ -62,6 +62,8 @@ Designed the database schema and built the `API's using Spring Boot`.
 |503| Service Unavailable|
 |504|Gateway Timeout|
 
+## Schema Design
+![](https://raw.githubusercontent.com/kanojiaD/BlogApplication/master/Schema_Design.png?token=ATMHGIU7RDE74SSJNE6AFW3BECLYC)
 ## API Contract
 |Functionality|Path |Method |Return Code|
 |-|-|-|-|
