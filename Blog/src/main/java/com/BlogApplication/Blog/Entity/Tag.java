@@ -22,6 +22,6 @@ public class Tag {
     @NotNull(message = "Tag should not be null")
     private String tag;
 
-    @ManyToMany(mappedBy = "tagList")
+    @ManyToMany(mappedBy = "tagList", fetch = FetchType.LAZY)
     private List<Article> articleList;
 }
