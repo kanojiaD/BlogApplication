@@ -1,4 +1,4 @@
-package com.BlogApplication.Blog.Entity;
+package com.BlogApplication.Blog.Blog_Web.Entity;
 
 import lombok.*;
 
@@ -14,27 +14,32 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
-@Table(name = "USERS")
+@Table(name = "Blogger")
 @Entity
-public class User {
+public class Blogger {
+
     @Column(name = "USER_ID")
     @Id
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long userid;
 
-    @Column(name = "USER_UUID", nullable = false)
+    @Column(name = "USER_UUID")
     private UUID userUUID;
 
-    @Column(name = "USER_NAME", nullable = false)
+    @Column(name = "USER_NAME")
+    @NotNull(message = "User name should not be null")
     @Size(min = 3, max = 20, message = "Length of name should be greater than 3 and less than 20")
-    private String userName;
+    private String username;
 
-    @Column(name = "EMAIL_ID", nullable = false)
-    @Email(message = "Invalid email address")
+    @Column(name = "EMAIL_ID", unique = true)
+    @NotNull(message = "Email should not be null")
+    @Email
     private String email;
 
-    @Column(name = "PASSWORD", nullable = false)
+    @Column(name = "PASSWORD")
+    @NotNull(message = "Password should not be null")
     @Size(min=8, message = "Length of password should be greater than or equal to 8")
-    private String userPassword;
+    private String password;
 
     @Column(name = "CONTACT_NUMBER")
     @Pattern(regexp = "(0)?(\\+91)?[6-9]\\d{9}", message = "Invalid Contact Number")
@@ -44,7 +49,7 @@ public class User {
     @NotNull(message = "Role should not be null")
     private String role;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "blogger", fetch = FetchType.LAZY)
     private List<Article> userArticleList;
 
 }

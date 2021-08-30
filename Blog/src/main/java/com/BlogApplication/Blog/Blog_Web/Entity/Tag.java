@@ -1,4 +1,4 @@
-package com.BlogApplication.Blog.Entity;
+package com.BlogApplication.Blog.Blog_Web.Entity;
 
 import lombok.*;
 
@@ -10,17 +10,17 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 @Getter
-@Table(name = "TAGS")
+@Table(name = "TAG")
 @Entity
 public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String tadId;
+    private String tagId;
 
-    @Column( name = "TAG")
+    @Column( name = "TAG_NAME", unique = true)
     @NotNull(message = "Tag should not be null")
-    private String tag;
+    private String tagName;
 
     @ManyToMany(mappedBy = "tagList", fetch = FetchType.LAZY)
     private List<Article> articleList;

@@ -1,9 +1,10 @@
-package com.BlogApplication.Blog.Entity;
+package com.BlogApplication.Blog.Blog_Web.Entity;
 
 import lombok.*;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -19,13 +20,14 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String articleId;
 
-    @Column(name = "TITLE", nullable = false)
+    @Column(name = "TITLE")
+    @NotNull(message = "Title should not be null")
     private String title;
 
     @Column(name="CONTENT")
     private String content;
 
-    @Column(name = "SLAG")
+    @Column(name = "SLAG", unique = true)
     @UniqueElements(message = "slag should be unique")
     private String slag;
 
@@ -36,7 +38,7 @@ public class Article {
     private Date updatedDate;
 
     @ManyToOne
-    private User user;
+    private Blogger blogger;
 
     @ManyToMany
     @JoinTable(name = "ARTICLE_TAG",
