@@ -16,31 +16,44 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-//@Table(name = "ARTICLES")
+@Table(name = "ARTICLES")
 @Entity
 public class Article {
 
     @Id
     private Long articleId;
 
-//    @Column(name = "TITLE")
-//    @NotNull(message = "Title should not be null")
+    @Column(name = "TITLE")
+    @NotNull(message = "Title should not be null")
     private String title;
 
-//    @Column(name="CONTENT")
+    @Column(name="CONTENT")
     private String content;
 
-//    @Column(name = "SLUG", unique = true)
-//    @UniqueElements(message = "slug should be unique")
+    @Column(name = "SLUG", unique = true)
     private String slug;
 
-//    @Column(name = "PUBLISH_DATE", nullable = false)
+    @Column(name = "PUBLISH_DATE", nullable = false)
     private Date publishedDate;
 
-//    @Column(name = "UPDATE_DATE", nullable = false)
+    @Column(name = "UPDATE_DATE", nullable = false)
     private Date updatedDate;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     private Blogger blogger;
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<Tag> tagList= new ArrayList<>();
+
+    public void addTagInArticle(Tag tag)
+    {
+        this.tagList.add(tag);
+    }
+
+    public void removeTagFromArticle(Tag tag)
+    {
+        this.tagList.remove(tag);
+    }
 }

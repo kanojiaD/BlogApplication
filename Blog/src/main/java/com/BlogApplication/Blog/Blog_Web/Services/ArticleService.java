@@ -40,18 +40,18 @@ public class ArticleService {
         article.setPublishedDate(new Date());
         article.setUpdatedDate(new Date());
 
-        Blogger blogger= userRepository.findById(3L).get();
+        Blogger blogger= userRepository.findById(1L).get();
         blogger.addArticleInBloggerList(article);
-
 
         article.setBlogger(blogger);
 
+        Tag tag=tagRepository.findById(2L).get();
+        tag.addArticleInTag(article);
+
+        article.addTagInArticle(tag);
+
         this.articleRepository.save(article);
-
-
-
-
-
+        this.tagRepository.save(tag);
         this.userRepository.save(blogger);
 
         return new ResponseEntity<Article>(article, HttpStatus.CREATED);
