@@ -3,6 +3,7 @@ package com.BlogApplication.Blog.Blog_Web.Controller;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public class ArticleController {
         return articleService.allArticle();
     }
 
-    @PostMapping("/blog/article/")
+    @PostMapping(value = "/blog/article/")
     public ResponseEntity<Article> createArticle(@RequestBody Article article)
     {
         return articleService.createArticle(article);

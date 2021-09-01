@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,42 +15,53 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
-@Table(name = "Blogger")
+@ToString
+//@Table(name = "Blogger")
 @Entity
 public class Blogger {
 
-    @Column(name = "USER_ID")
+//    @Column(name = "USER_ID")
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long userid;
 
-    @Column(name = "USER_UUID")
+//    @Column(name = "USER_UUID")
     private UUID userUUID;
 
-    @Column(name = "USER_NAME")
-    @NotNull(message = "User name should not be null")
-    @Size(min = 3, max = 20, message = "Length of name should be greater than 3 and less than 20")
+//    @Column(name = "USER_NAME")
+//    @NotNull(message = "User name should not be null")
+//    @Size(min = 3, max = 20, message = "Length of name should be greater than 3 and less than 20")
     private String username;
 
-    @Column(name = "EMAIL_ID", unique = true)
-    @NotNull(message = "Email should not be null")
-    @Email
+//    @Column(name = "EMAIL_ID", unique = true)
+//    @NotNull(message = "Email should not be null")
+//    @Email
     private String email;
 
-    @Column(name = "PASSWORD")
-    @NotNull(message = "Password should not be null")
-    @Size(min=8, message = "Length of password should be greater than or equal to 8")
+//    @Column(name = "PASSWORD")
+//    @NotNull(message = "Password should not be null")
+//    @Size(min=8, message = "Length of password should be greater than or equal to 8")
     private String password;
 
-    @Column(name = "CONTACT_NUMBER")
-    @Pattern(regexp = "(0)?(\\+91)?[6-9]\\d{9}", message = "Invalid Contact Number")
+//    @Column(name = "CONTACT_NUMBER")
+//    @Pattern(regexp = "(0)?(\\+91)?[6-9]\\d{9}", message = "Invalid Contact Number")
     private String contact;
 
-    @Column(name = "ROLE")
-    @NotNull(message = "Role should not be null")
+//    @Column(name = "ROLE")
+//    @NotNull(message = "Role should not be null")
     private String role;
 
-    @OneToMany(mappedBy = "blogger", fetch = FetchType.LAZY)
-    private List<Article> userArticleList;
+    @OneToMany(mappedBy = "blogger")
+    private List<Article> listOfArticle= new ArrayList<>();
+
+    public void addArticleInBloggerList(Article article)
+    {
+        this.listOfArticle.add(article);
+    }
+
+    public void removeArticleFromBloggerList(Article article)
+    {
+        this.listOfArticle.remove(article);
+    }
 
 }

@@ -21,4 +21,8 @@ public class UserService {
         this.userRepository.save(blogger);
         return new ResponseEntity<Blogger>(blogger, HttpStatus.CREATED);
     }
+
+    public ResponseEntity<Blogger> getBlogger(Long userid) {
+        return new ResponseEntity<Blogger>(userRepository.findById(userid).get(), HttpStatus.OK);
+    }
 }
