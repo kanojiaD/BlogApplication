@@ -1,6 +1,7 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
+import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
 import com.BlogApplication.Blog.Blog_Web.Services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,8 +54,8 @@ public class ArticleController {
     /**
      * This API is use of create an article.
      * Authentication required.
-     * @RequestBody : article
-     * @return
+     * @RequestBody : Article
+     * @return : Article
      */
     @PostMapping("/blog/article/")
     public ResponseEntity<Article> createArticle(@RequestBody Article article)
@@ -70,7 +71,6 @@ public class ArticleController {
      * @RequestBody : article
      * @return : Article
      */
-
     @PutMapping("blog/article/{articleid}/")
     public ResponseEntity<Article> updateArticle(@PathVariable String articleid,
                                                  @RequestBody Article article)
@@ -80,6 +80,7 @@ public class ArticleController {
 
     /**
      * This API is use for delete the article
+     * Authentication required.
      * @Pathvariable : articleid
      * @return
      */
@@ -87,6 +88,19 @@ public class ArticleController {
     public void deleteArticle(@PathVariable String articleid)
     {
         this.articleService.deleteArticle(Long.parseLong(articleid));
+    }
+
+    /**
+     *  This API is use for add a tag in existing article.
+     *  Authentication required.
+     * @param : ?id=someid&tag=sometag
+     * @return : Article
+     */
+    @PutMapping("blog/article/")
+    public ResponseEntity<Article> addTagInArticle(@RequestParam("id") String articleid,
+                                @RequestParam("tag") String tagname)
+    {
+       return this.articleService.addTagInArticle(Long.parseLong(articleid), tagname);
     }
 
 

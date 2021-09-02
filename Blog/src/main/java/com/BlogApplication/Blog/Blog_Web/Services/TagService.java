@@ -21,7 +21,7 @@ public class TagService {
     TagRepository tagRepository;
 
     public ResponseEntity<Tag> createTag(Tag tag) {
-        tag.setCreatedBy("null");
+        tag.setCreatedBy("dharmendra@gmail.com");
         this.tagRepository.save(tag);
         return new ResponseEntity<Tag>(tag, HttpStatus.CREATED);
     }

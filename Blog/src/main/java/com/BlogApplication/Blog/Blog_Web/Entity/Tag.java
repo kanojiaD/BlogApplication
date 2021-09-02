@@ -1,6 +1,7 @@
 package com.BlogApplication.Blog.Blog_Web.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
@@ -29,7 +30,8 @@ public class Tag {
     @Column(name = "CREATED_BY")
     private String createdBy;
 
-    @ManyToMany(mappedBy = "tagList")
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Article> articleList= new ArrayList<>();
 
     public void addArticleInTag(Article article)

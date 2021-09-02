@@ -43,7 +43,7 @@ public class ArticleService {
 
         article.setBlogger(blogger);
 
-        Tag tag=tagRepository.findById(2L).get();
+        Tag tag=tagRepository.findById(3L).get();
         tag.addArticleInTag(article);
 
         article.addTagInArticle(tag);
@@ -81,5 +81,15 @@ public class ArticleService {
         oldArticle.setUpdatedDate(new Date());
         this.articleRepository.save(oldArticle);
         return new ResponseEntity<>(oldArticle, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<Article> addTagInArticle(long articleid, String tagname) {
+        Article article= articleRepository.findById(articleid).get();
+        Tag tag= tagRepository.findByTagName(tagname);
+        tag.addArticleInTag(article);
+        article.addTagInArticle(tag);
+        articleRepository.save(article);
+        tagRepository.save(tag);
+        return new ResponseEntity<>(article,HttpStatus.CREATED);
     }
 }

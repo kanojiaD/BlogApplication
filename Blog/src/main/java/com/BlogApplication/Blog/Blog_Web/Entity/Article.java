@@ -43,8 +43,7 @@ public class Article {
     @ManyToOne(fetch = FetchType.LAZY)
     private Blogger blogger;
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "articleList")
     private List<Tag> tagList= new ArrayList<>();
 
     public void addTagInArticle(Tag tag)
