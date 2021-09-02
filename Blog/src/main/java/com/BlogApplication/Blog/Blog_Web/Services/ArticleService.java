@@ -56,4 +56,15 @@ public class ArticleService {
 
         return new ResponseEntity<Article>(article, HttpStatus.CREATED);
     }
+    
+
+    public void deleteArticle(long articleid) {
+        this.articleRepository.delete(articleRepository.findById(articleid).get());
+    }
+
+
+    public ResponseEntity<List<Article>> getArticleByTag(String tagname) {
+        Tag tag= this.tagRepository.findByTagName(tagname);
+        return new ResponseEntity<List<Article>>(tag.getArticleList(), HttpStatus.FOUND);
+    }
 }

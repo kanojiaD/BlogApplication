@@ -24,7 +24,7 @@ public class Tag {
 
     @Column( name = "TAG_NAME", unique = true)
     @NotNull(message = "Tag should not be null")
-    private String tagName;
+    private String tagname;
 
     @Column(name = "CREATED_BY")
     private String createdBy;

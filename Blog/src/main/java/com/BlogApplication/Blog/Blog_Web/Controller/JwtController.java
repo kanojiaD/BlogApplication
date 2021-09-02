@@ -4,7 +4,6 @@ import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Security.Model.JwtRequest;
 import com.BlogApplication.Blog.Blog_Security.Model.JwtResponse;
 import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
-import com.BlogApplication.Blog.Blog_Web.Util.TokenHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,7 +36,6 @@ public class JwtController {
         }
         UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(jwtRequest.getUsername());
         String token = this.jwtUtil.generateToken(userDetails);
-        TokenHolder.setToken(token);
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
