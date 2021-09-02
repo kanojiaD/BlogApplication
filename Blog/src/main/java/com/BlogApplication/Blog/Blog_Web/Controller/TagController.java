@@ -18,12 +18,23 @@ public class TagController {
     @Autowired
     TagService tagService;
 
+    /**
+     * This API is use for create tag.
+     * Authentication required.
+     * @RequestBody : tag
+     * @return : tag
+     */
     @PostMapping("/blog/tag/")
     public ResponseEntity<Tag> createTag(@RequestBody Tag tag)
     {
         return this.tagService.createTag(tag);
     }
 
+    /**
+     * This API is use for view all tag.
+     * Authentication required.
+     * @return : List of Al Tag
+     */
     @GetMapping("/blog/tag/")
     public ResponseEntity<List<Tag>>  viewAllTag()
     {

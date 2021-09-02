@@ -1,6 +1,5 @@
 package com.BlogApplication.Blog.Blog_Web.Services;
 
-import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Entity.Blogger;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +47,6 @@ public class ArticleService {
         tag.addArticleInTag(article);
 
         article.addTagInArticle(tag);
-
         this.articleRepository.save(article);
         this.tagRepository.save(tag);
         this.userRepository.save(blogger);
@@ -65,6 +62,24 @@ public class ArticleService {
 
     public ResponseEntity<List<Article>> getArticleByTag(String tagname) {
         Tag tag= this.tagRepository.findByTagName(tagname);
-        return new ResponseEntity<List<Article>>(tag.getArticleList(), HttpStatus.FOUND);
+        return new ResponseEntity<List<Article>>(tag.getArticleList(),
+                                                 HttpStatus.FOUND);
+    }
+
+    public ResponseEntity<Article> viewArticleBySlug(String slug) {
+        return new ResponseEntity<>(this.articleRepository.findArticleBySlug(slug),
+                                    HttpStatus.FOUND);
+    }
+
+    public ResponseEntity<Article> updateArticle(long articleid, Article article) {
+        Article oldArticle= articleRepository.findById(articleid).get();
+        if(article.getTitle()!=null) {
+            oldArticle.setTitle(article.getTitle());
+            oldArticle.setSlug(article.getTitle().replace(' ', '_')+'_'+oldArticle.getArticleId());
+        }
+        if(article.getContent()!=null) oldArticle.setContent(article.getContent());
+        oldArticle.setUpdatedDate(new Date());
+        this.articleRepository.save(oldArticle);
+        return new ResponseEntity<>(oldArticle, HttpStatus.CREATED);
     }
 }

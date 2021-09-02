@@ -15,17 +15,22 @@ public class ArticleController {
     ArticleService articleService;
 
     /**
-     * This API is use for extract and watch all the article who are written by blogger without login.
-     * @return list of all article.
+     * 1.
+     * This rest API is use for fetch all the article who are written by blogger.
+     * Authentication not required.
+     * @return : List of All Article.
      */
     @GetMapping("/blog/")
     public ResponseEntity<List<Article>> allArticle()
     {
-        return articleService.allArticle();
+        return this.articleService.allArticle();
     }
 
     /**
-     *
+     * This rest API is use for fetch the article by tag which belongs to the same tag that are given in pathvariable.
+     * Authentication not required.
+     * @Pathvariable : tagname
+     * @return : List of Article
      */
     @GetMapping("/blog/tag/{tagname}/articles/")
     public ResponseEntity<List<Article>> getArticleByTag(@PathVariable String tagname)
@@ -34,23 +39,56 @@ public class ArticleController {
     }
 
     /**
+     * This rest API is use for fetch the article who belongs to the same slug as given in @Pathvariable.
+     * Authentication not required.
+     * @Pathvariable : slug
+     * @return : Article
+     */
+    @GetMapping("/blog/article/{slug}/")
+    public ResponseEntity<Article> viewArticleBySlug(@PathVariable String slug)
+    {
+        return this.articleService.viewArticleBySlug(slug);
+    }
+
+    /**
      * This API is use of create an article.
-     * @RequestBody article
+     * Authentication required.
+     * @RequestBody : article
      * @return
      */
-    @PostMapping(value = "/blog/article/")
+    @PostMapping("/blog/article/")
     public ResponseEntity<Article> createArticle(@RequestBody Article article)
     {
         return articleService.createArticle(article);
     }
 
     /**
-     * deleteArticle:
+     * This API is use for update the article of articleid.
+     * Only to be update attribute will be given.
+     * Authentication required.
+     * @Pathvariable : articleid
+     * @RequestBody : article
+     * @return : Article
+     */
+
+    @PutMapping("blog/article/{articleid}/")
+    public ResponseEntity<Article> updateArticle(@PathVariable String articleid,
+                                                 @RequestBody Article article)
+    {
+        return this.articleService.updateArticle(Long.parseLong(articleid), article);
+    }
+
+    /**
+     * This API is use for delete the article
+     * @Pathvariable : articleid
+     * @return
      */
     @DeleteMapping("blog/article/{articleid}/")
     public void deleteArticle(@PathVariable String articleid)
     {
         this.articleService.deleteArticle(Long.parseLong(articleid));
     }
+
+
 
 }

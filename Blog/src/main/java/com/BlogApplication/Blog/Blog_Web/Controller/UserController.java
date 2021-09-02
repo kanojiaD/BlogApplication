@@ -17,8 +17,9 @@ public class UserController {
 
     /**
      * User can see the own details using this API.
-     * @Pathvariable userid
-     * @return Blogger Details
+     * Authentication required.
+     * @Pathvariable : userid
+     * @return : Blogger Details
      */
     @GetMapping("/blog/user/{userid}")
     public ResponseEntity<Blogger> getBlogger(@PathVariable String userid)
@@ -28,8 +29,9 @@ public class UserController {
 
     /**
      * This API is use for User Registration.
-     * @RequestBody blogger
-     * @return A message that user is able or not to register.
+     * Authentication not required.
+     * @RequestBody : blogger
+     * @return : A message that registration is successful or not.
      */
     @PostMapping("/blog/signup/")
     public ResponseEntity<Blogger> userRegistration(@RequestBody Blogger blogger)
@@ -38,7 +40,10 @@ public class UserController {
     }
 
     /**
-     *
+     * Using this API user can see all his article.
+     * Authentication required.
+     * @Pathvariable : userid
+     * @return : List of Article
      */
     @GetMapping("/blog/user/{userid}/articles/")
     public ResponseEntity<List<Article>> viewUserAllHisArticle(@PathVariable String userid)

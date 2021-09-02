@@ -23,7 +23,11 @@ public class JwtController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-
+    /**
+     * Login API.
+     * @RequestBody : JwtRequest
+     * @return : JwtResponse(Token).
+     */
     @PostMapping("/blog/signin/")
     public ResponseEntity<?> generateToken(@RequestBody JwtRequest jwtRequest) throws Exception
     {
