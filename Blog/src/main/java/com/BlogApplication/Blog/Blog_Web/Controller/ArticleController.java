@@ -1,7 +1,6 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
-import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
 import com.BlogApplication.Blog.Blog_Web.Services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -57,10 +56,12 @@ public class ArticleController {
      * @RequestBody : Article
      * @return : Article
      */
-    @PostMapping("/blog/article/")
-    public ResponseEntity<Article> createArticle(@RequestBody Article article)
+    @PostMapping("/blog/article/{userid}/{tagId}/")
+    public ResponseEntity<Article> createArticle(@RequestBody Article article,
+                                                 @PathVariable String userid,
+                                                 @PathVariable String tagId)
     {
-        return articleService.createArticle(article);
+        return articleService.createArticle(Long.parseLong(userid), Long.parseLong(tagId), article);
     }
 
     /**

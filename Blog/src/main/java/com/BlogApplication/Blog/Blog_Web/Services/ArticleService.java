@@ -33,17 +33,17 @@ public class ArticleService {
     }
 
     @Transactional
-    public ResponseEntity<Article> createArticle(Article article) {
+    public ResponseEntity<Article> createArticle(long userid, long tagId, Article article) {
         article.setSlug(article.getTitle().replace(' ', '_')+'_'+article.getArticleId());
         article.setPublishedDate(new Date());
         article.setUpdatedDate(new Date());
 
-        Blogger blogger= userRepository.findById(1L).get();
+        Blogger blogger= userRepository.findById(userid).get();
         blogger.addArticleInBloggerList(article);
 
         article.setBlogger(blogger);
 
-        Tag tag=tagRepository.findById(3L).get();
+        Tag tag=tagRepository.findById(tagId).get();
         tag.addArticleInTag(article);
 
         article.addTagInArticle(tag);
