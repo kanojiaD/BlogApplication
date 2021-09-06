@@ -12,11 +12,9 @@ import java.util.Date;
 public class ExceptionMessage {
     private Date timeStamp;
     private String message;
-    private StackTraceElement stackTrace;
 
-    public ExceptionMessage(Date timeStamp, String message, StackTraceElement[] stackTrace) {
+    public ExceptionMessage(Date timeStamp, String message) {
         this.timeStamp = timeStamp;
         this.message = message;
-        this.stackTrace = stackTrace[0];
     }
 }

@@ -1,11 +1,14 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleDetails;
+import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -21,7 +24,7 @@ public class ArticleController {
      * @return : List of All Article.
      */
     @GetMapping("/blog/")
-    public ResponseEntity<List<Article>> allArticle()
+    public ResponseEntity<List<ArticleDetails>> allArticle()
     {
         return this.articleService.allArticle();
     }
@@ -33,7 +36,7 @@ public class ArticleController {
      * @return : List of Article
      */
     @GetMapping("/blog/tag/{tagname}/articles/")
-    public ResponseEntity<List<Article>> getArticleByTag(@PathVariable String tagname)
+    public ResponseEntity<List<ArticleDetails>> getArticleByTag(@PathVariable String tagname)
     {
         return this.articleService.getArticleByTag(tagname);
     }
@@ -45,19 +48,19 @@ public class ArticleController {
      * @return : Article
      */
     @GetMapping("/blog/article/{slug}/")
-    public ResponseEntity<Article> viewArticleBySlug(@PathVariable String slug)
+    public ResponseEntity<ArticleDetails> viewArticleBySlug(@PathVariable String slug)
     {
         return this.articleService.viewArticleBySlug(slug);
     }
 
     /**
-     * This API is use of create an article.
+     * This API is use for create an article.
      * Authentication required.
      * @RequestBody : Article
      * @return : Article
      */
     @PostMapping("/blog/article/{userid}/{tagId}/")
-    public ResponseEntity<Article> createArticle(@RequestBody Article article,
+    public ResponseEntity<ArticleDetails> createArticle(@Valid @RequestBody Article article,
                                                  @PathVariable String userid,
                                                  @PathVariable String tagId)
     {
@@ -73,7 +76,7 @@ public class ArticleController {
      * @return : Article
      */
     @PutMapping("blog/article/{articleid}/")
-    public ResponseEntity<Article> updateArticle(@PathVariable String articleid,
+    public ResponseEntity<ResponseDto> updateArticle(@PathVariable String articleid,
                                                  @RequestBody Article article)
     {
         return this.articleService.updateArticle(Long.parseLong(articleid), article);
@@ -86,19 +89,19 @@ public class ArticleController {
      * @return
      */
     @DeleteMapping("blog/article/{articleid}/")
-    public void deleteArticle(@PathVariable String articleid)
+    public ResponseEntity<ResponseDto> deleteArticle(@PathVariable String articleid)
     {
-        this.articleService.deleteArticle(Long.parseLong(articleid));
+        return this.articleService.deleteArticle(Long.parseLong(articleid));
     }
 
     /**
      *  This API is use for add a tag in existing article.
      *  Authentication required.
-     * @param : ?id=someid&tag=sometag
+     * @param : ?id=someArticleId&tag=someTagName
      * @return : Article
      */
     @PutMapping("blog/article/")
-    public ResponseEntity<Article> addTagInArticle(@RequestParam("id") String articleid,
+    public ResponseEntity<ArticleDetails> addTagInArticle(@RequestParam("id") String articleid,
                                 @RequestParam("tag") String tagname)
     {
        return this.articleService.addTagInArticle(Long.parseLong(articleid), tagname);

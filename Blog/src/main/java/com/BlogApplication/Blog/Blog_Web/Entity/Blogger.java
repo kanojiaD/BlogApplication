@@ -7,9 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,7 +46,6 @@ public class Blogger {
     private String contact;
 
     @Column(name = "ROLE")
-    @NotNull(message = "Role should not be null")
     private String role;
 
     @OneToMany(mappedBy = "blogger")

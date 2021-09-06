@@ -1,19 +1,26 @@
 package com.BlogApplication.Blog.Blog_Web.Services;
 
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleDetails;
+import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Entity.Blogger;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
+import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
 import com.BlogApplication.Blog.Blog_Web.Repository.ArticleRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.TagRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ArticleService {
@@ -27,13 +34,23 @@ public class ArticleService {
     @Autowired
     TagRepository tagRepository;
 
+    @Autowired
+    ModelMapper modelMapper;
 
-    public ResponseEntity<List<Article>> allArticle() {
-        return new ResponseEntity<List<Article>>(articleRepository.findAll(), HttpStatus.FOUND);
+
+    public ResponseEntity<List<ArticleDetails>> allArticle() {
+        List<Article> article = articleRepository.findAll();
+        if(article.isEmpty())
+        {
+            throw new CustomException("No article found!!");
+        }
+        Type articleDetails = new TypeToken<List<ArticleDetails>>(){}.getType();
+        List<ArticleDetails> articleDetailsList= modelMapper.map(article, articleDetails);
+        return new ResponseEntity<List<ArticleDetails>>(articleDetailsList, HttpStatus.FOUND);
     }
 
     @Transactional
-    public ResponseEntity<Article> createArticle(long userid, long tagId, Article article) {
+    public ResponseEntity<ArticleDetails> createArticle(long userid, long tagId, Article article) {
         article.setSlug(article.getTitle().replace(' ', '_')+'_'+article.getArticleId());
         article.setPublishedDate(new Date());
         article.setUpdatedDate(new Date());
@@ -51,45 +68,103 @@ public class ArticleService {
         this.tagRepository.save(tag);
         this.userRepository.save(blogger);
 
-        return new ResponseEntity<Article>(article, HttpStatus.CREATED);
+        ArticleDetails articleDetails = modelMapper.map(article, ArticleDetails.class);
+        return new ResponseEntity<ArticleDetails>(articleDetails, HttpStatus.CREATED);
     }
     
 
-    public void deleteArticle(long articleid) {
-        this.articleRepository.delete(articleRepository.findById(articleid).get());
+    public ResponseEntity<ResponseDto> deleteArticle(long articleid) {
+        Article article= new Article();
+        try {
+            article = articleRepository.findById(articleid).get();
+        }
+        catch (Exception e)
+        {
+            throw new CustomException("Article not exist!!");
+        }
+        this.articleRepository.delete(article);
+        return new ResponseEntity<>(new ResponseDto(article), HttpStatus.GONE);
     }
 
 
-    public ResponseEntity<List<Article>> getArticleByTag(String tagname) {
+    public ResponseEntity<List<ArticleDetails>> getArticleByTag(String tagname) {
         Tag tag= this.tagRepository.findByTagName(tagname);
-        return new ResponseEntity<List<Article>>(tag.getArticleList(),
+        if(tag==null)
+        {
+            throw new CustomException("No Article contain the tag \'"+tagname+"\'");
+        }
+        List<Article> articles= tag.getArticleList();
+        if(articles.isEmpty())
+        {
+            throw new CustomException("No article found for the tag \'"+tagname+"\'");
+        }
+        Type articleDetails = new TypeToken<List<ArticleDetails>>(){}.getType();
+        List<ArticleDetails> articleDetailsList= modelMapper.map(articles, articleDetails);
+        return new ResponseEntity<List<ArticleDetails>>(articleDetailsList,
                                                  HttpStatus.FOUND);
     }
 
-    public ResponseEntity<Article> viewArticleBySlug(String slug) {
-        return new ResponseEntity<>(this.articleRepository.findArticleBySlug(slug),
+    public ResponseEntity<ArticleDetails> viewArticleBySlug(String slug) {
+        Article article=this.articleRepository.findArticleBySlug(slug);
+        if(article==null)
+        {
+            throw new CustomException("No Article found for the slug \'"+slug+"\'");
+        }
+        ArticleDetails articleDetails= modelMapper.map(article,ArticleDetails.class);
+        return new ResponseEntity<ArticleDetails>(articleDetails,
                                     HttpStatus.FOUND);
     }
 
-    public ResponseEntity<Article> updateArticle(long articleid, Article article) {
-        Article oldArticle= articleRepository.findById(articleid).get();
-        if(article.getTitle()!=null) {
-            oldArticle.setTitle(article.getTitle());
-            oldArticle.setSlug(article.getTitle().replace(' ', '_')+'_'+oldArticle.getArticleId());
+    public ResponseEntity<ResponseDto> updateArticle(long articleid, Article article) {
+        Article newArticle= new Article();
+        try {
+            newArticle = articleRepository.findById(articleid).get();
         }
-        if(article.getContent()!=null) oldArticle.setContent(article.getContent());
-        oldArticle.setUpdatedDate(new Date());
-        this.articleRepository.save(oldArticle);
-        return new ResponseEntity<>(oldArticle, HttpStatus.CREATED);
+        catch(Exception e)
+        {
+            throw new CustomException("Article Not exist");
+        }
+        String msg= "";
+        if(article.getTitle()!=null) {
+            msg+=newArticle.getTitle()+" updated to "+article.getTitle()+" ";
+            msg+=newArticle.getSlug()+" updated to "+article.getTitle().replace(' ', '_')+'_'+newArticle.getArticleId()+" ";
+            newArticle.setTitle(article.getTitle());
+            newArticle.setSlug(article.getTitle().replace(' ', '_')+'_'+newArticle.getArticleId());
+        }
+        if(article.getContent()!=null)
+        {
+            msg+=newArticle.getContent()+" updated to "+article.getContent();
+            newArticle.setContent(article.getContent());
+        }
+        newArticle.setUpdatedDate(new Date());
+        this.articleRepository.save(newArticle);
+        ResponseDto responseDto= new ResponseDto("Updated Successful",msg);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Article> addTagInArticle(long articleid, String tagname) {
-        Article article= articleRepository.findById(articleid).get();
+    public ResponseEntity<ArticleDetails> addTagInArticle(long articleid, String tagname) {
+        Article article= new Article();
+        try{
+            article= articleRepository.findById(articleid).get();
+        }
+        catch (Exception e)
+        {
+            throw new CustomException("Article Not exist");
+        }
         Tag tag= tagRepository.findByTagName(tagname);
+        if(tag==null) {
+            throw new CustomException("tag not found for tagname \'"+tagname+"\'");
+        }
+        if(article.getTagList().contains(tag))
+        {
+            throw new CustomException("Tag \'"+tagname+"\' already present");
+        }
         tag.addArticleInTag(article);
         article.addTagInArticle(tag);
         articleRepository.save(article);
         tagRepository.save(tag);
-        return new ResponseEntity<>(article,HttpStatus.CREATED);
+
+        ArticleDetails articleDetails= modelMapper.map(article,ArticleDetails.class);
+        return new ResponseEntity<>(articleDetails,HttpStatus.CREATED);
     }
 }

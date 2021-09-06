@@ -1,6 +1,9 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
+import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
+import com.BlogApplication.Blog.Blog_Web.DTO.TagDetails;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
+import com.BlogApplication.Blog.Blog_Web.Message.BlogMessage;
 import com.BlogApplication.Blog.Blog_Web.Services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -25,7 +29,7 @@ public class TagController {
      * @return : tag
      */
     @PostMapping("/blog/tag/")
-    public ResponseEntity<Tag> createTag(@RequestBody Tag tag)
+    public ResponseEntity<ResponseDto> createTag(@Valid @RequestBody Tag tag)
     {
         return this.tagService.createTag(tag);
     }
@@ -36,7 +40,7 @@ public class TagController {
      * @return : List of Al Tag
      */
     @GetMapping("/blog/tag/")
-    public ResponseEntity<List<Tag>>  viewAllTag()
+    public ResponseEntity<List<TagDetails>>  viewAllTag()
     {
         return this.tagService.viewAllTag();
     }
