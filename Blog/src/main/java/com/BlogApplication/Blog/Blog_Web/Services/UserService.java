@@ -60,4 +60,15 @@ public class UserService {
         List<ArticleDetails> articleDetailsList= modelMapper.map(listOfArticle, articleDetails);
         return new ResponseEntity<List<ArticleDetails>>(articleDetailsList, HttpStatus.FOUND);
     }
+
+    public ResponseEntity<ResponseDto> deleteUser(Long userid) {
+        try {
+            this.userRepository.delete(this.userRepository.getById(userid));
+            return new ResponseEntity<>(new ResponseDto("Successful", "The User Account has been removed!!"), HttpStatus.GONE);
+        }
+        catch (Exception e)
+        {
+            throw new CustomException("User not found!!");
+        }
+    }
 }

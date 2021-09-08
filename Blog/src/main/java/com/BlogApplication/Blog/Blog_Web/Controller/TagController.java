@@ -23,6 +23,7 @@ public class TagController {
     TagService tagService;
 
     /**
+     * 1.
      * This API is use for create tag.
      * Authentication required.
      * @RequestBody : tag
@@ -35,9 +36,10 @@ public class TagController {
     }
 
     /**
+     * 2.
      * This API is use for view all tag.
      * Authentication required.
-     * @return : List of Al Tag
+     * @return : List of All Tag
      */
     @GetMapping("/blog/tag/")
     public ResponseEntity<List<TagDetails>>  viewAllTag()

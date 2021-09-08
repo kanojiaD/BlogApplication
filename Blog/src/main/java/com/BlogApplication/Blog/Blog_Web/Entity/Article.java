@@ -1,9 +1,7 @@
 package com.BlogApplication.Blog.Blog_Web.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -41,7 +39,7 @@ public class Article {
     @ManyToOne(fetch = FetchType.LAZY)
     private Blogger blogger;
 
-    @ManyToMany(mappedBy = "articleList")
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     private List<Tag> tagList= new ArrayList<>();
 
     public void addTagInArticle(Tag tag)

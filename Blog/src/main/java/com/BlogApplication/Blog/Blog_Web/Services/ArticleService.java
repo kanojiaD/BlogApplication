@@ -12,15 +12,19 @@ import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class ArticleService {
@@ -56,8 +60,6 @@ public class ArticleService {
         article.setUpdatedDate(new Date());
 
         Blogger blogger= userRepository.findById(userid).get();
-        blogger.addArticleInBloggerList(article);
-
         article.setBlogger(blogger);
 
         Tag tag=tagRepository.findById(tagId).get();
@@ -65,14 +67,12 @@ public class ArticleService {
 
         article.addTagInArticle(tag);
         this.articleRepository.save(article);
-        this.tagRepository.save(tag);
-        this.userRepository.save(blogger);
 
         ArticleDetails articleDetails = modelMapper.map(article, ArticleDetails.class);
         return new ResponseEntity<ArticleDetails>(articleDetails, HttpStatus.CREATED);
     }
     
-
+    @Transactional
     public ResponseEntity<ResponseDto> deleteArticle(long articleid) {
         Article article= new Article();
         try {
@@ -82,6 +82,7 @@ public class ArticleService {
         {
             throw new CustomException("Article not exist!!");
         }
+
         this.articleRepository.delete(article);
         return new ResponseEntity<>(new ResponseDto(article), HttpStatus.GONE);
     }
@@ -166,5 +167,35 @@ public class ArticleService {
 
         ArticleDetails articleDetails= modelMapper.map(article,ArticleDetails.class);
         return new ResponseEntity<>(articleDetails,HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<List<ArticleDetails>> getArticleByOrder() {
+        Pageable pageable= PageRequest.of(0, 3, Sort.by("publishedDate").descending());
+        Page<Article> pageOfArticle= this.articleRepository.findPaginatedArticle(pageable);
+        if(pageOfArticle==null) {
+            throw new CustomException("No Article found!!");
+        }
+        List<Article> listOfArticle= pageOfArticle.getContent();
+        Type articleDetails = new TypeToken<List<ArticleDetails>>(){}.getType();
+        List<ArticleDetails> articleDetailsList= modelMapper.map(listOfArticle, articleDetails);
+        return new ResponseEntity<List<ArticleDetails>>(articleDetailsList, HttpStatus.FOUND);
+    }
+
+    public ResponseEntity<List<Article>> searchArticle(String tagname, String username,String title) {
+        List<Article> articleList= articleRepository.findAll();
+        List<Article> finalList= new ArrayList<>();
+        for(Article article : articleList)
+        {
+            if((title==null || article.getTitle().equals(title)) && (username==null || article.getBlogger().getUsername().equals(username)))
+            {
+                List<Tag> taglist= article.getTagList();
+                for(Tag tag: taglist)
+                {
+                    if((tagname==null || tag.getTagname().equals(tagname)) && !finalList.contains(article))
+                        finalList.add(article);
+                }
+            }
+        }
+        return new ResponseEntity<>(finalList, HttpStatus.FOUND);
     }
 }

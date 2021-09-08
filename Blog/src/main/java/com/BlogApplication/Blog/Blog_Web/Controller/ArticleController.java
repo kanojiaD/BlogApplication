@@ -23,13 +23,14 @@ public class ArticleController {
      * Authentication not required.
      * @return : List of All Article.
      */
-    @GetMapping("/blog/")
+    @GetMapping("/blog/articles/")
     public ResponseEntity<List<ArticleDetails>> allArticle()
     {
         return this.articleService.allArticle();
     }
 
     /**
+     * 2.
      * This rest API is use for fetch the article by tag which belongs to the same tag that are given in pathvariable.
      * Authentication not required.
      * @Pathvariable : tagname
@@ -42,6 +43,7 @@ public class ArticleController {
     }
 
     /**
+     * 3.
      * This rest API is use for fetch the article who belongs to the same slug as given in @Pathvariable.
      * Authentication not required.
      * @Pathvariable : slug
@@ -54,6 +56,7 @@ public class ArticleController {
     }
 
     /**
+     * 4.
      * This API is use for create an article.
      * Authentication required.
      * @RequestBody : Article
@@ -68,6 +71,7 @@ public class ArticleController {
     }
 
     /**
+     * 5.
      * This API is use for update the article of articleid.
      * Only to be update attribute will be given.
      * Authentication required.
@@ -83,6 +87,7 @@ public class ArticleController {
     }
 
     /**
+     * 6.
      * This API is use for delete the article
      * Authentication required.
      * @Pathvariable : articleid
@@ -95,6 +100,7 @@ public class ArticleController {
     }
 
     /**
+     * 7.
      *  This API is use for add a tag in existing article.
      *  Authentication required.
      * @param : ?id=someArticleId&tag=someTagName
@@ -107,6 +113,31 @@ public class ArticleController {
        return this.articleService.addTagInArticle(Long.parseLong(articleid), tagname);
     }
 
+    /**
+     * 8.
+     * This API is use for pagination.
+     * Authentication required.
+     * @return List of article.
+     */
+    @GetMapping("/blog/articleByOrder/")
+    public ResponseEntity<List<ArticleDetails>> getArticleByOrder()
+    {
+        return this.articleService.getArticleByOrder();
+    }
 
+    /**
+     * API is use for search article by tag and editor and article name.
+     * Authentication not required.
+     * @param ?tag=someTag&editor=someEditor&article=someArticleName
+     * @return List of Article
+     */
+    @GetMapping("/blog/searchArticle/")
+    public ResponseEntity<List<Article>> searchArticle(@RequestParam(value = "tag", required = false) String tagname,
+                                                       @RequestParam(value = "editor", required = false) String username,
+                                                       @RequestParam(value = "article", required = false) String title)
+
+    {
+        return this.articleService.searchArticle(tagname, username, title);
+    }
 
 }

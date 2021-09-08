@@ -21,18 +21,7 @@ public class UserController {
     UserService userService;
 
     /**
-     * User can see the own details using this API.
-     * Authentication required.
-     * @Pathvariable : userid
-     * @return : Blogger Details
-     */
-    @GetMapping("/blog/user/{userid}")
-    public ResponseEntity<BloggerDetails> getBlogger(@PathVariable String userid)
-    {
-        return this.userService.getBlogger(Long.parseLong(userid));
-    }
-
-    /**
+     * 1.
      * This API is use for User Registration.
      * Authentication not required.
      * @RequestBody : blogger
@@ -51,6 +40,20 @@ public class UserController {
     }
 
     /**
+     * 2.
+     * User can see the own details using this API.
+     * Authentication required.
+     * @Pathvariable : userid
+     * @return : Blogger Details
+     */
+    @GetMapping("/blog/user/{userid}")
+    public ResponseEntity<BloggerDetails> getBlogger(@PathVariable String userid)
+    {
+        return this.userService.getBlogger(Long.parseLong(userid));
+    }
+
+    /**
+     * 3.
      * Using this API user can see all his article.
      * Authentication required.
      * @Pathvariable : userid
@@ -62,5 +65,16 @@ public class UserController {
         return this.userService.viewUserAllHisArticle(Long.parseLong(userid));
     }
 
+    /**
+     * 4.
+     *  This API is use for delete the account of Bloggers.
+     *  Authentication required.
+     * @return : ResponseDto.
+     */
+    @DeleteMapping("/blog/user/{userid}/")
+    public ResponseEntity<ResponseDto> deleteUser(@PathVariable("userid") Long userid)
+    {
+        return this.userService.deleteUser(userid);
+    }
 
 }

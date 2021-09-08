@@ -31,7 +31,7 @@ public class Tag {
     private String createdBy;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "tagList")
     private List<Article> articleList= new ArrayList<>();
 
     public void addArticleInTag(Article article)

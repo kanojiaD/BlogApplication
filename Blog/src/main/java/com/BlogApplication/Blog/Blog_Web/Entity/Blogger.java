@@ -48,7 +48,7 @@ public class Blogger {
     @Column(name = "ROLE")
     private String role;
 
-    @OneToMany(mappedBy = "blogger")
+    @OneToMany(mappedBy = "blogger", cascade = CascadeType.ALL)
     private List<Article> listOfArticle= new ArrayList<>();
 
     public void addArticleInBloggerList(Article article)
