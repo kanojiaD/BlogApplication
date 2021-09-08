@@ -71,8 +71,7 @@ public class ArticleService {
         ArticleDetails articleDetails = modelMapper.map(article, ArticleDetails.class);
         return new ResponseEntity<ArticleDetails>(articleDetails, HttpStatus.CREATED);
     }
-    
-    @Transactional
+
     public ResponseEntity<ResponseDto> deleteArticle(long articleid) {
         Article article= new Article();
         try {
@@ -82,7 +81,6 @@ public class ArticleService {
         {
             throw new CustomException("Article not exist!!");
         }
-
         this.articleRepository.delete(article);
         return new ResponseEntity<>(new ResponseDto(article), HttpStatus.GONE);
     }

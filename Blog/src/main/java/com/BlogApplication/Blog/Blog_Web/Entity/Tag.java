@@ -31,7 +31,7 @@ public class Tag {
     private String createdBy;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "tagList")
+    @ManyToMany(mappedBy = "tagList", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Article> articleList= new ArrayList<>();
 
     public void addArticleInTag(Article article)

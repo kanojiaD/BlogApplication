@@ -52,4 +52,16 @@ public class TagService {
         List<TagDetails> tagDetailsList = modelMapper.map(lagList, tagDetails);
         return new ResponseEntity<List<TagDetails>>(tagDetailsList, HttpStatus.FOUND);
     }
+
+    public ResponseEntity<ResponseDto> deleteTag(Long tagid) {
+        try {
+            this.tagRepository.delete(tagRepository.getById(tagid));
+        }
+        catch (Exception e)
+        {
+            throw new CustomException("This tag is already used!!. So you can not delete this tag");
+        }
+        return new ResponseEntity<ResponseDto>(new ResponseDto("Successful", "Tag successfully deleted"),
+                                                HttpStatus.GONE);
+    }
 }

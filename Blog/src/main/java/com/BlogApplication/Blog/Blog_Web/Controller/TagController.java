@@ -7,10 +7,7 @@ import com.BlogApplication.Blog.Blog_Web.Message.BlogMessage;
 import com.BlogApplication.Blog.Blog_Web.Services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -46,4 +43,14 @@ public class TagController {
     {
         return this.tagService.viewAllTag();
     }
+
+    /**
+     * This API is use for Delete tag.
+     */
+    @DeleteMapping("/blog/tag/{tagid}/")
+    public ResponseEntity<ResponseDto>deleteTag(@PathVariable("tagid") Long tagid)
+    {
+        return this.tagService.deleteTag(tagid);
+    }
+
 }
