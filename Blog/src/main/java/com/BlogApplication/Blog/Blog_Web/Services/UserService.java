@@ -14,6 +14,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,14 +32,18 @@ public class UserService {
     CustomUserDetailsService customUserDetailsService;
     @Autowired
     ServiceUtil util;
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     public ResponseEntity<ResponseDto> userRegistration(Users users) {
         users.setUserid(12L);
         users.setUserUUID(new UUID(9223372036854775807L, -9223372036854775808L));
+        ResponseDto responseDto= new ResponseDto(users);
+        users.setPassword(bCryptPasswordEncoder.encode(users.getPassword()));
         if(users.getRole()== null) users.setRole("ROLE_USER");
         this.userRepository.save(users);
-        return new ResponseEntity<ResponseDto>(new ResponseDto(users), HttpStatus.CREATED);
+        return new ResponseEntity<ResponseDto>(responseDto, HttpStatus.CREATED);
     }
 
     public ResponseEntity<BloggerDetails> getUser() {
@@ -67,10 +72,9 @@ public class UserService {
         return new ResponseEntity<List<ArticleResponseDetails>>(articleResponseDetailsList, HttpStatus.FOUND);
     }
 
-    public ResponseEntity<ResponseDto> deleteUser(Long userid) {
-        util.authenticateUserSameAsLogedInUser(userRepository.getById(userid).getEmail(), "Not valid User for delete the account!!");
+    public ResponseEntity<ResponseDto> deleteUser() {
         try {
-            this.userRepository.delete(this.userRepository.getById(userid));
+            this.userRepository.delete(this.userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName()));
             return new ResponseEntity<>(new ResponseDto("Successful", "The User Account has been removed!!"), HttpStatus.GONE);
         }
         catch (Exception e)

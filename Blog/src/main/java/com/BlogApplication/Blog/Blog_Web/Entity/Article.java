@@ -20,6 +20,8 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long articleId;
 
+    private UUID uuid;
+
     @Column(name = "TITLE")
     @NotNull(message = "Title should not be null")
     private String title;

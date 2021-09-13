@@ -70,10 +70,10 @@ public class UserController {
      *  Authentication required.
      * @return : ResponseDto.
      */
-    @DeleteMapping("/blog/user/{userid}/")
-    public ResponseEntity<ResponseDto> deleteUser(@PathVariable("userid") Long userid)
+    @DeleteMapping("/blog/user/")
+    public ResponseEntity<ResponseDto> deleteUser()
     {
-        return this.userService.deleteUser(userid);
+        return this.userService.deleteUser();
     }
 
 }

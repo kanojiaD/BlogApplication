@@ -53,10 +53,9 @@ public class TagController {
      * This API is use for Delete tag.
      */
     @DeleteMapping("/blog/tag/{tagname}/")
-    public ResponseEntity<ResponseDto>deleteTag(@PathVariable String tagname,
-                                                @RequestHeader(value = "Authorization") String authToken)
+    public ResponseEntity<ResponseDto>deleteTag(@PathVariable String tagname)
     {
-        return this.tagService.deleteTag(tagname, jwtUtil.extractUsername(authToken.substring(7)));
+        return this.tagService.deleteTag(tagname);
     }
 
 }

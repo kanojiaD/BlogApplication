@@ -28,6 +28,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ArticleService {
@@ -36,16 +37,14 @@ public class ArticleService {
     ArticleRepository articleRepository;
     @Autowired
     CustomUserDetailsService customUserDetailsService;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     TagRepository tagRepository;
-
+    @Autowired
+    TagService tagService;
     @Autowired
     ModelMapper modelMapper;
-
     @Autowired
     ServiceUtil util;
 
@@ -62,10 +61,12 @@ public class ArticleService {
                                                                 ArticleRequestDetails requestArticle)
     {
         Article article= new Article();
+        UUID uuid=new UUID(9223372036854775807L, -9223372036854775808L);
+        article.setUuid(uuid);
         article= modelMapper.map(requestArticle, Article.class);
         List<String> tagFromRequestBody= requestArticle.getTags();
 
-        article.setSlug(article.getTitle().replace(' ', '_')+'_'+article.getArticleId());
+        article.setSlug(util.generateSlug(requestArticle.getTitle(),uuid.toString()));
         article.setPublishedDate(new Date());
         article.setUpdatedDate(new Date());
 
@@ -101,6 +102,7 @@ public class ArticleService {
         return new ResponseEntity<ArticleResponseDetails>(articleResponseDetails, HttpStatus.CREATED);
     }
 
+    @Transactional
     public ResponseEntity<ResponseDto> deleteArticle(long articleid) {
         Article article= new Article();
         try {
@@ -111,8 +113,17 @@ public class ArticleService {
             throw new CustomException("Article not exist!!");
         }
         util.authenticateUserSameAsLogedInUser(article.getUsers().getEmail(), "Not valid User for delete this article!!");
+        List<Tag> tagList= article.getTagList();
+        for(Tag tag:tagList)
+        {
+            if(tag.getArticleList().size()==1 && tag.getArticleList().get(0).getArticleId()==articleid)
+            {
+                tag.setArticleList(new ArrayList<>());
+                tagService.deleteTag(tag.getTagname());
+            }
+        }
+        article.getUsers().getListOfArticle().remove(article);
         this.articleRepository.delete(article);
-
         return new ResponseEntity<>(new ResponseDto(article), HttpStatus.GONE);
     }
 

@@ -8,7 +8,7 @@ import java.util.Set;
 @Setter
 @Getter
 public class BloggerDetails {
-    private String username;
+    private String name;
     private String email;
     private String contact;
     Set<ArticleResponseDetails> listOfArticle;
