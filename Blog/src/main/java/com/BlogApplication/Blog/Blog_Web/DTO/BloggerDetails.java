@@ -11,5 +11,5 @@ public class BloggerDetails {
     private String username;
     private String email;
     private String contact;
-    Set<ArticleDetails> listOfArticle;
+    Set<ArticleResponseDetails> listOfArticle;
 }

@@ -17,6 +17,7 @@ import java.util.*;
 public class Article {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long articleId;
 
     @Column(name = "TITLE")
@@ -37,7 +38,7 @@ public class Article {
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    private Blogger blogger;
+    private Users users;
 
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     private List<Tag> tagList= new ArrayList<>();

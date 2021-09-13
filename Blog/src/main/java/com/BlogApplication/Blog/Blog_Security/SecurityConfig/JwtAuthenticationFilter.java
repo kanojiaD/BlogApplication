@@ -2,6 +2,7 @@ package com.BlogApplication.Blog.Blog_Security.SecurityConfig;
 
 import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
+import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                throw new CustomException("User not found!!");
             }
             UserDetails userDetails= this.customUserDetailsService.loadUserByUsername(username);
             if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null)
@@ -53,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             else
             {
-                throw new UsernameNotFoundException("User name not valited");
+                throw new UsernameNotFoundException("User name not valid");
             }
         }
         filterChain.doFilter(request, response);

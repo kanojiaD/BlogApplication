@@ -14,9 +14,9 @@ import java.util.*;
 @Setter
 @Getter
 @ToString
-@Table(name = "Blogger")
+@Table(name = "Users")
 @Entity
-public class Blogger {
+public class Users {
 
     @Column(name = "USER_ID")
     @Id
@@ -26,10 +26,10 @@ public class Blogger {
     @Column(name = "USER_UUID")
     private UUID userUUID;
 
-    @Column(name = "USER_NAME")
+    @Column(name = "NAME")
     @NotNull(message = "User name should not be null")
     @Size(min = 3, max = 20, message = "Length of name should be greater than 3 and less than 20")
-    private String username;
+    private String name;
 
     @Column(name = "EMAIL_ID", unique = true)
     @NotNull(message = "Email should not be null")
@@ -48,7 +48,7 @@ public class Blogger {
     @Column(name = "ROLE")
     private String role;
 
-    @OneToMany(mappedBy = "blogger", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Article> listOfArticle= new ArrayList<>();
 
     public void addArticleInBloggerList(Article article)

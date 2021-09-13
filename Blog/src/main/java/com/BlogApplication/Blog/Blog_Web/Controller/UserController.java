@@ -1,10 +1,9 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleDetails;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDetails;
 import com.BlogApplication.Blog.Blog_Web.DTO.BloggerDetails;
 import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
-import com.BlogApplication.Blog.Blog_Web.Entity.Article;
-import com.BlogApplication.Blog.Blog_Web.Entity.Blogger;
+import com.BlogApplication.Blog.Blog_Web.Entity.Users;
 import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
 import com.BlogApplication.Blog.Blog_Web.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +27,10 @@ public class UserController {
      * @return : A message that registration is successful or not.
      */
     @PostMapping("/blog/signup/")
-    public ResponseEntity<ResponseDto> userRegistration(@Valid @RequestBody Blogger blogger)
+    public ResponseEntity<ResponseDto> userRegistration(@Valid @RequestBody Users users)
     {
         try{
-            return this.userService.userRegistration(blogger);
+            return this.userService.userRegistration(users);
         }
         catch (Exception e)
         {
@@ -46,10 +45,10 @@ public class UserController {
      * @Pathvariable : userid
      * @return : Blogger Details
      */
-    @GetMapping("/blog/user/{userid}")
-    public ResponseEntity<BloggerDetails> getBlogger(@PathVariable String userid)
+    @GetMapping("/blog/user/")
+    public ResponseEntity<BloggerDetails> getUser()
     {
-        return this.userService.getBlogger(Long.parseLong(userid));
+        return this.userService.getUser();
     }
 
     /**
@@ -59,15 +58,15 @@ public class UserController {
      * @Pathvariable : userid
      * @return : List of Article
      */
-    @GetMapping("/blog/user/{userid}/articles/")
-    public ResponseEntity<List<ArticleDetails>> viewUserAllHisArticle(@PathVariable String userid)
+    @GetMapping("/blog/user/articles/")
+    public ResponseEntity<List<ArticleResponseDetails>> viewUserAllHisArticle()
     {
-        return this.userService.viewUserAllHisArticle(Long.parseLong(userid));
+        return this.userService.viewUserAllHisArticle();
     }
 
     /**
      * 4.
-     *  This API is use for delete the account of Bloggers.
+     *  This API is use for delete the account of User.
      *  Authentication required.
      * @return : ResponseDto.
      */

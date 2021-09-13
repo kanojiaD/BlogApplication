@@ -1,9 +1,11 @@
 package com.BlogApplication.Blog.Blog_Security.Services;
 
-import com.BlogApplication.Blog.Blog_Web.Entity.Blogger;
+import com.BlogApplication.Blog.Blog_Web.Entity.Users;
+import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,16 +21,24 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String domain) throws UsernameNotFoundException {
-        Blogger blogger= userRepository.findBloggerByDomain(domain);
+        Users users = userRepository.findUserByEmail(domain);
         try
         {
-            String username= blogger.getEmail();
-            String password= blogger.getPassword();
-            return new User( username, password, new ArrayList<>());
+            String username= users.getEmail();
+            String password= users.getPassword();
+            return new org.springframework.security.core.userdetails.User( username, password, new ArrayList<>());
         }
         catch(Exception e)
         {
-            throw new UsernameNotFoundException("User Not Found!!");
+            throw new UsernameNotFoundException("User Not Registered!!");
         }
+    }
+
+
+    public String currentLogedInUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentAuthenticateEmail = authentication.getName();
+        if(currentAuthenticateEmail.equals("anonymousUser")) throw new CustomException("Please Login!!");
+        return currentAuthenticateEmail;
     }
 }

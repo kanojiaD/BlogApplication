@@ -10,7 +10,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleDetails {
+public class ArticleResponseDetails {
     private Date updatedDate;
     private String title;
     private String content;

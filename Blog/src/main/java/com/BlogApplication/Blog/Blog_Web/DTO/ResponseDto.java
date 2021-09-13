@@ -1,7 +1,7 @@
 package com.BlogApplication.Blog.Blog_Web.DTO;
 
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
-import com.BlogApplication.Blog.Blog_Web.Entity.Blogger;
+import com.BlogApplication.Blog.Blog_Web.Entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,10 +14,10 @@ import lombok.ToString;
 public class ResponseDto {
     private String status;
     private String message;
-    public ResponseDto(Blogger blogger)
+    public ResponseDto(Users users)
     {
         status ="Registration successful!";
-        message = "Your login Id is: "+blogger.getEmail()+" and Password is: "+blogger.getPassword();
+        message = "Your login Id is: "+ users.getEmail()+" and Password is: "+ users.getPassword();
     }
     public ResponseDto(Article article)
     {

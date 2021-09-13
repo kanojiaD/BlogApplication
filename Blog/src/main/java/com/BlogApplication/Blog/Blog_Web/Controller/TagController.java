@@ -1,5 +1,6 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
+import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.DTO.TagDetails;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
@@ -17,6 +18,9 @@ import java.util.List;
 public class TagController {
 
     @Autowired
+    JwtUtil jwtUtil;
+
+    @Autowired
     TagService tagService;
 
     /**
@@ -27,9 +31,10 @@ public class TagController {
      * @return : tag
      */
     @PostMapping("/blog/tag/")
-    public ResponseEntity<ResponseDto> createTag(@Valid @RequestBody Tag tag)
+    public ResponseEntity<ResponseDto> createTag(@Valid @RequestBody Tag tag,
+                                                 @RequestHeader(value = "Authorization") String authToken)
     {
-        return this.tagService.createTag(tag);
+        return this.tagService.createTag(tag, jwtUtil.extractUsername(authToken.substring(7)));
     }
 
     /**
@@ -47,10 +52,11 @@ public class TagController {
     /**
      * This API is use for Delete tag.
      */
-    @DeleteMapping("/blog/tag/{tagid}/")
-    public ResponseEntity<ResponseDto>deleteTag(@PathVariable("tagid") Long tagid)
+    @DeleteMapping("/blog/tag/{tagname}/")
+    public ResponseEntity<ResponseDto>deleteTag(@PathVariable String tagname,
+                                                @RequestHeader(value = "Authorization") String authToken)
     {
-        return this.tagService.deleteTag(tagid);
+        return this.tagService.deleteTag(tagname, jwtUtil.extractUsername(authToken.substring(7)));
     }
 
 }

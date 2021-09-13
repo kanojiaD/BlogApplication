@@ -29,8 +29,8 @@ public class TagService {
     @Autowired
     TagRepository tagRepository;
 
-    public ResponseEntity<ResponseDto> createTag(Tag tag) {
-        tag.setCreatedBy("dharmendra@gmail.com");
+    public ResponseEntity<ResponseDto> createTag(Tag tag, String email) {
+        tag.setCreatedBy(email);
         try{
             this.tagRepository.save(tag);
         }
@@ -53,9 +53,13 @@ public class TagService {
         return new ResponseEntity<List<TagDetails>>(tagDetailsList, HttpStatus.FOUND);
     }
 
-    public ResponseEntity<ResponseDto> deleteTag(Long tagid) {
+    public ResponseEntity<ResponseDto> deleteTag(String tagname, String email) {
+        Tag tag=tagRepository.findByTagName(tagname);
+        if(!tag.getCreatedBy().equals(email)){
+            throw new CustomException("This user doesn't have permission to delete this tag.");
+        }
         try {
-            this.tagRepository.delete(tagRepository.getById(tagid));
+            this.tagRepository.delete(tag);
         }
         catch (Exception e)
         {

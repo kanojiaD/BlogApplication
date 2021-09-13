@@ -1,12 +1,14 @@
 package com.BlogApplication.Blog.Blog_Web.Services;
 
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleDetails;
+import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDetails;
 import com.BlogApplication.Blog.Blog_Web.DTO.BloggerDetails;
 import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
-import com.BlogApplication.Blog.Blog_Web.Entity.Blogger;
+import com.BlogApplication.Blog.Blog_Web.Entity.Users;
 import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
+import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,43 +27,48 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    ServiceUtil util;
 
     @Transactional
-    public ResponseEntity<ResponseDto> userRegistration(Blogger blogger) {
-        blogger.setUserid(12L);
-        blogger.setUserUUID(new UUID(9223372036854775807L, -9223372036854775808L));
-        if(blogger.getRole()== null) blogger.setRole("ROLE_USER");
-        this.userRepository.save(blogger);
-        return new ResponseEntity<ResponseDto>(new ResponseDto(blogger), HttpStatus.CREATED);
+    public ResponseEntity<ResponseDto> userRegistration(Users users) {
+        users.setUserid(12L);
+        users.setUserUUID(new UUID(9223372036854775807L, -9223372036854775808L));
+        if(users.getRole()== null) users.setRole("ROLE_USER");
+        this.userRepository.save(users);
+        return new ResponseEntity<ResponseDto>(new ResponseDto(users), HttpStatus.CREATED);
     }
 
-    public ResponseEntity<BloggerDetails> getBlogger(Long userid) {
-        Blogger blogger= new Blogger();
+    public ResponseEntity<BloggerDetails> getUser() {
+        Users users = new Users();
         try
         {
-             blogger = userRepository.findById(userid).get();
+             users = userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
         }
         catch(Exception e)
         {
             throw new CustomException("User not found");
         }
-        BloggerDetails bloggerDetails= modelMapper.map(blogger, BloggerDetails.class);
+        BloggerDetails bloggerDetails= modelMapper.map(users, BloggerDetails.class);
         return new ResponseEntity<BloggerDetails>(bloggerDetails, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<ArticleDetails>> viewUserAllHisArticle(long userid) {
-        Blogger blogger = userRepository.getById(userid);
-        List<Article> listOfArticle = blogger.getListOfArticle();
+    public ResponseEntity<List<ArticleResponseDetails>> viewUserAllHisArticle() {
+        Users users = userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
+        List<Article> listOfArticle = users.getListOfArticle();
         if (listOfArticle.isEmpty()) {
             throw new CustomException("No article found for this User");
         }
 
-        Type articleDetails = new TypeToken<List<ArticleDetails>>(){}.getType();
-        List<ArticleDetails> articleDetailsList= modelMapper.map(listOfArticle, articleDetails);
-        return new ResponseEntity<List<ArticleDetails>>(articleDetailsList, HttpStatus.FOUND);
+        Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
+        List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(listOfArticle, articleDetails);
+        return new ResponseEntity<List<ArticleResponseDetails>>(articleResponseDetailsList, HttpStatus.FOUND);
     }
 
     public ResponseEntity<ResponseDto> deleteUser(Long userid) {
+        util.authenticateUserSameAsLogedInUser(userRepository.getById(userid).getEmail(), "Not valid User for delete the account!!");
         try {
             this.userRepository.delete(this.userRepository.getById(userid));
             return new ResponseEntity<>(new ResponseDto("Successful", "The User Account has been removed!!"), HttpStatus.GONE);

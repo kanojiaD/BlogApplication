@@ -44,4 +44,8 @@ public class Tag {
         this.articleList.remove(article);
     }
 
+    public Tag(String tagname, String createdBy) {
+        this.tagname = tagname;
+        this.createdBy = createdBy;
+    }
 }
