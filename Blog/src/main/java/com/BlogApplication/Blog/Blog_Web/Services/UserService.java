@@ -12,8 +12,6 @@ import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,17 +34,17 @@ public class UserService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public ResponseEntity<ResponseDto> userRegistration(Users users) {
+    public ResponseDto userRegistration(Users users) {
         users.setUserid(12L);
         users.setUserUUID(new UUID(9223372036854775807L, -9223372036854775808L));
         ResponseDto responseDto= new ResponseDto(users);
         users.setPassword(bCryptPasswordEncoder.encode(users.getPassword()));
         if(users.getRole()== null) users.setRole("ROLE_USER");
         this.userRepository.save(users);
-        return new ResponseEntity<ResponseDto>(responseDto, HttpStatus.CREATED);
+        return responseDto;
     }
 
-    public ResponseEntity<BloggerDetails> getUser() {
+    public BloggerDetails getUser() {
         Users users = new Users();
         try
         {
@@ -57,10 +55,10 @@ public class UserService {
             throw new CustomException("User not found");
         }
         BloggerDetails bloggerDetails= modelMapper.map(users, BloggerDetails.class);
-        return new ResponseEntity<BloggerDetails>(bloggerDetails, HttpStatus.OK);
+        return bloggerDetails;
     }
 
-    public ResponseEntity<List<ArticleResponseDetails>> viewUserAllHisArticle() {
+    public List<ArticleResponseDetails> viewUserAllHisArticle() {
         Users users = userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
         List<Article> listOfArticle = users.getListOfArticle();
         if (listOfArticle.isEmpty()) {
@@ -69,13 +67,13 @@ public class UserService {
 
         Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
         List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(listOfArticle, articleDetails);
-        return new ResponseEntity<List<ArticleResponseDetails>>(articleResponseDetailsList, HttpStatus.FOUND);
+        return articleResponseDetailsList;
     }
 
-    public ResponseEntity<ResponseDto> deleteUser() {
+    public ResponseDto deleteUser() {
         try {
             this.userRepository.delete(this.userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName()));
-            return new ResponseEntity<>(new ResponseDto("Successful", "The User Account has been removed!!"), HttpStatus.GONE);
+            return new ResponseDto("Successful", "The User Account has been removed!!");
         }
         catch (Exception e)
         {

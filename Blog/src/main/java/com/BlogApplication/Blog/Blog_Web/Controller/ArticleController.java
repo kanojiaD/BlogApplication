@@ -4,9 +4,9 @@ import com.BlogApplication.Blog.Blog_Web.DTO.ArticleRequestDetails;
 import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDetails;
 import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
-import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
 import com.BlogApplication.Blog.Blog_Web.Services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +29,8 @@ public class ArticleController {
     @GetMapping("/blog/articles/")
     public ResponseEntity<List<ArticleResponseDetails>> allArticle()
     {
-        return this.articleService.allArticle();
+        return new ResponseEntity<List<ArticleResponseDetails>>(this.articleService.allArticle(),
+                                                                HttpStatus.FOUND);
     }
 
     /**
@@ -42,7 +43,8 @@ public class ArticleController {
     @GetMapping("/blog/tag/{tagname}/articles/")
     public ResponseEntity<List<ArticleResponseDetails>> getArticleByTag(@PathVariable String tagname)
     {
-        return this.articleService.getArticleByTag(tagname);
+        return new ResponseEntity<List<ArticleResponseDetails>>(this.articleService.getArticleByTag(tagname),
+                                                                 HttpStatus.FOUND);
     }
 
     /**
@@ -55,7 +57,8 @@ public class ArticleController {
     @GetMapping("/blog/article/{slug}/")
     public ResponseEntity<ArticleResponseDetails> viewArticleBySlug(@PathVariable String slug)
     {
-        return this.articleService.viewArticleBySlug(slug);
+        return new ResponseEntity<ArticleResponseDetails>(this.articleService.viewArticleBySlug(slug),
+                                                            HttpStatus.FOUND);
     }
 
     /**
@@ -70,7 +73,8 @@ public class ArticleController {
     public ResponseEntity<ArticleResponseDetails> createArticle(@Valid @RequestBody ArticleRequestDetails article,
                                                                 @RequestParam(value = "tag", required = false) String tagname)
     {
-        return articleService.createArticle(tagname, article);
+        return new ResponseEntity<ArticleResponseDetails>(articleService.createArticle(tagname, article),
+                                                            HttpStatus.CREATED);
     }
 
 
@@ -87,7 +91,8 @@ public class ArticleController {
     public ResponseEntity<ResponseDto> updateArticle(@PathVariable String articleid,
                                                  @RequestBody Article article)
     {
-        return this.articleService.updateArticle(Long.parseLong(articleid), article);
+        return new ResponseEntity<>(this.articleService.updateArticle(Long.parseLong(articleid), article),
+                                    HttpStatus.CREATED);
     }
 
     /**
@@ -100,7 +105,8 @@ public class ArticleController {
     @DeleteMapping("blog/article/{articleid}/")
     public ResponseEntity<ResponseDto> deleteArticle(@PathVariable String articleid)
     {
-        return this.articleService.deleteArticle(Long.parseLong(articleid));
+        return new ResponseEntity<>(this.articleService.deleteArticle(Long.parseLong(articleid)),
+                             HttpStatus.GONE);
     }
 
     /**
@@ -114,7 +120,8 @@ public class ArticleController {
     public ResponseEntity<ArticleResponseDetails> addTagInArticle(@RequestParam("id") String articleid,
                                                                   @RequestParam("tag") String tagname)
     {
-       return this.articleService.addTagInArticle(Long.parseLong(articleid), tagname);
+       return new ResponseEntity<>(this.articleService.addTagInArticle(Long.parseLong(articleid), tagname),
+                             HttpStatus.CREATED);
     }
 
     /**
@@ -126,7 +133,7 @@ public class ArticleController {
     @GetMapping("/blog/articleByOrder/")
     public ResponseEntity<List<ArticleResponseDetails>> getArticleByOrder()
     {
-        return this.articleService.getArticleByOrder();
+        return new ResponseEntity<List<ArticleResponseDetails>>(this.articleService.getArticleByOrder(), HttpStatus.FOUND);
     }
 
     /**
@@ -141,7 +148,8 @@ public class ArticleController {
                                                        @RequestParam(value = "article", required = false) String title)
 
     {
-        return this.articleService.searchArticle(tagname, username, title);
+        return
+        new ResponseEntity<>(this.articleService.searchArticle(tagname, username, title), HttpStatus.FOUND);
     }
 
 }

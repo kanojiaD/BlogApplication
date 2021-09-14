@@ -4,9 +4,9 @@ import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.DTO.TagDetails;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
-import com.BlogApplication.Blog.Blog_Web.Message.BlogMessage;
 import com.BlogApplication.Blog.Blog_Web.Services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +34,8 @@ public class TagController {
     public ResponseEntity<ResponseDto> createTag(@Valid @RequestBody Tag tag,
                                                  @RequestHeader(value = "Authorization") String authToken)
     {
-        return this.tagService.createTag(tag, jwtUtil.extractUsername(authToken.substring(7)));
+        return new ResponseEntity<>(this.tagService.createTag(tag, jwtUtil.extractUsername(authToken.substring(7))),
+                HttpStatus.CREATED);
     }
 
     /**
@@ -46,7 +47,7 @@ public class TagController {
     @GetMapping("/blog/tag/")
     public ResponseEntity<List<TagDetails>>  viewAllTag()
     {
-        return this.tagService.viewAllTag();
+        return new ResponseEntity<List<TagDetails>>(this.tagService.viewAllTag(), HttpStatus.FOUND);
     }
 
     /**
@@ -55,7 +56,20 @@ public class TagController {
     @DeleteMapping("/blog/tag/{tagname}/")
     public ResponseEntity<ResponseDto>deleteTag(@PathVariable String tagname)
     {
-        return this.tagService.deleteTag(tagname);
+        return new ResponseEntity<ResponseDto>(this.tagService.deleteTag(tagname),
+                HttpStatus.GONE);
+    }
+
+    /**
+     * update tag
+     * @param ?tag=presentTag&update=someTag
+     */
+    @PutMapping("/blog/tag/")
+    public ResponseEntity<ResponseDto> updateTag(@RequestParam(value = "tag") String tagname,
+                            @RequestParam(value = "update") String newTagName)
+    {
+        return new ResponseEntity<ResponseDto>(this.tagService.updateTag(tagname,newTagName),
+                                                HttpStatus.CREATED);
     }
 
 }

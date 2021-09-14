@@ -11,7 +11,6 @@ import java.util.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Table(name = "ARTICLES")
 @Entity
 public class Article {

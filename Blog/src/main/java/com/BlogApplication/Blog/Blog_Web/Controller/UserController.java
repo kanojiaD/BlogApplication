@@ -7,6 +7,7 @@ import com.BlogApplication.Blog.Blog_Web.Entity.Users;
 import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
 import com.BlogApplication.Blog.Blog_Web.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class UserController {
     public ResponseEntity<ResponseDto> userRegistration(@Valid @RequestBody Users users)
     {
         try{
-            return this.userService.userRegistration(users);
+            return new ResponseEntity<ResponseDto>(this.userService.userRegistration(users), HttpStatus.CREATED);
         }
         catch (Exception e)
         {
@@ -48,7 +49,7 @@ public class UserController {
     @GetMapping("/blog/user/")
     public ResponseEntity<BloggerDetails> getUser()
     {
-        return this.userService.getUser();
+        return new ResponseEntity<BloggerDetails>(this.userService.getUser(), HttpStatus.OK);
     }
 
     /**
@@ -61,7 +62,7 @@ public class UserController {
     @GetMapping("/blog/user/articles/")
     public ResponseEntity<List<ArticleResponseDetails>> viewUserAllHisArticle()
     {
-        return this.userService.viewUserAllHisArticle();
+        return new ResponseEntity<List<ArticleResponseDetails>>(this.userService.viewUserAllHisArticle(), HttpStatus.FOUND);
     }
 
     /**
@@ -73,7 +74,7 @@ public class UserController {
     @DeleteMapping("/blog/user/")
     public ResponseEntity<ResponseDto> deleteUser()
     {
-        return this.userService.deleteUser();
+        return new ResponseEntity<>(this.userService.deleteUser(), HttpStatus.GONE);
     }
 
 }

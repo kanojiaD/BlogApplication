@@ -19,8 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,15 +47,15 @@ public class ArticleService {
     ServiceUtil util;
 
 
-    public ResponseEntity<List<ArticleResponseDetails>> allArticle() {
+    public List<ArticleResponseDetails> allArticle() {
         List<Article> article = articleRepository.findAll();
         Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
         List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(article, articleDetails);
-        return new ResponseEntity<List<ArticleResponseDetails>>(articleResponseDetailsList, HttpStatus.FOUND);
+        return articleResponseDetailsList;
     }
 
     @Transactional
-    public ResponseEntity<ArticleResponseDetails> createArticle(String tagname,
+    public ArticleResponseDetails createArticle(String tagname,
                                                                 ArticleRequestDetails requestArticle)
     {
         Article article= new Article();
@@ -99,11 +97,11 @@ public class ArticleService {
         this.articleRepository.save(article);
 
         ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
-        return new ResponseEntity<ArticleResponseDetails>(articleResponseDetails, HttpStatus.CREATED);
+        return articleResponseDetails;
     }
 
     @Transactional
-    public ResponseEntity<ResponseDto> deleteArticle(long articleid) {
+    public ResponseDto deleteArticle(long articleid) {
         Article article= new Article();
         try {
             article = articleRepository.findById(articleid).get();
@@ -113,22 +111,28 @@ public class ArticleService {
             throw new CustomException("Article not exist!!");
         }
         util.authenticateUserSameAsLogedInUser(article.getUsers().getEmail(), "Not valid User for delete this article!!");
-        List<Tag> tagList= article.getTagList();
-        for(Tag tag:tagList)
+
+        List<Tag> tags= new ArrayList<>();
+        tags.addAll(article.getTagList());
+        for(Tag tag : tags)
         {
-            if(tag.getArticleList().size()==1 && tag.getArticleList().get(0).getArticleId()==articleid)
+            tag.removeArticleFromTag(article);
+            article.removeTagFromArticle(tag);
+        }
+        this.articleRepository.delete(article);
+        for(Tag tag:tags)
+        {
+            if((tag.getArticleList().size()==1 && tag.getArticleList().get(0).getArticleId()==articleid)||tag.getArticleList().size()==0)
             {
-                tag.setArticleList(new ArrayList<>());
                 tagService.deleteTag(tag.getTagname());
             }
         }
-        article.getUsers().getListOfArticle().remove(article);
-        this.articleRepository.delete(article);
-        return new ResponseEntity<>(new ResponseDto(article), HttpStatus.GONE);
+
+        return new ResponseDto(article);
     }
 
 
-    public ResponseEntity<List<ArticleResponseDetails>> getArticleByTag(String tagname) {
+    public List<ArticleResponseDetails> getArticleByTag(String tagname) {
         Tag tag= this.tagRepository.findByTagName(tagname);
         if(tag==null)
         {
@@ -141,22 +145,20 @@ public class ArticleService {
         }
         Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
         List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(articles, articleDetails);
-        return new ResponseEntity<List<ArticleResponseDetails>>(articleResponseDetailsList,
-                                                 HttpStatus.FOUND);
+        return articleResponseDetailsList;
     }
 
-    public ResponseEntity<ArticleResponseDetails> viewArticleBySlug(String slug) {
+    public ArticleResponseDetails viewArticleBySlug(String slug) {
         Article article=this.articleRepository.findArticleBySlug(slug);
         if(article==null)
         {
             throw new CustomException("No Article found for the slug \'"+slug+"\'");
         }
         ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
-        return new ResponseEntity<ArticleResponseDetails>(articleResponseDetails,
-                                    HttpStatus.FOUND);
+        return articleResponseDetails;
     }
 
-    public ResponseEntity<ResponseDto> updateArticle(long articleid, Article article) {
+    public ResponseDto updateArticle(long articleid, Article article) {
         Article newArticle= new Article();
         try {
             newArticle = articleRepository.findById(articleid).get();
@@ -179,10 +181,10 @@ public class ArticleService {
         newArticle.setUpdatedDate(new Date());
         this.articleRepository.save(newArticle);
         ResponseDto responseDto= new ResponseDto("Updated Successful",msg);
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        return responseDto;
     }
 
-    public ResponseEntity<ArticleResponseDetails> addTagInArticle(long articleid, String tagname) {
+    public ArticleResponseDetails addTagInArticle(long articleid, String tagname) {
         Article article= new Article();
         try{
             article= articleRepository.findById(articleid).get();
@@ -206,10 +208,10 @@ public class ArticleService {
         tagRepository.save(tag);
 
         ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
-        return new ResponseEntity<>(articleResponseDetails,HttpStatus.CREATED);
+        return articleResponseDetails;
     }
 
-    public ResponseEntity<List<ArticleResponseDetails>> getArticleByOrder() {
+    public List<ArticleResponseDetails> getArticleByOrder() {
         Pageable pageable= PageRequest.of(0, 3, Sort.by("publishedDate").descending());
         Page<Article> pageOfArticle= this.articleRepository.findPaginatedArticle(pageable);
         if(pageOfArticle==null) {
@@ -218,10 +220,10 @@ public class ArticleService {
         List<Article> listOfArticle= pageOfArticle.getContent();
         Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
         List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(listOfArticle, articleDetails);
-        return new ResponseEntity<List<ArticleResponseDetails>>(articleResponseDetailsList, HttpStatus.FOUND);
+        return articleResponseDetailsList;
     }
 
-    public ResponseEntity<List<Article>> searchArticle(String tagname, String name,String title) {
+    public List<Article> searchArticle(String tagname, String name,String title) {
         List<Article> articleList= articleRepository.findAll();
         List<Article> finalList= new ArrayList<>();
         for(Article article : articleList)
@@ -236,7 +238,7 @@ public class ArticleService {
                 }
             }
         }
-        return new ResponseEntity<>(finalList, HttpStatus.FOUND);
+        return finalList;
     }
 
 }

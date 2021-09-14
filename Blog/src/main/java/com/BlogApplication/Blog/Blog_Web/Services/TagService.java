@@ -1,6 +1,7 @@
 package com.BlogApplication.Blog.Blog_Web.Services;
 
 import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
+import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
 import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.DTO.TagDetails;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
@@ -9,6 +10,7 @@ import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
 import com.BlogApplication.Blog.Blog_Web.Message.BlogMessage;
 import com.BlogApplication.Blog.Blog_Web.Repository.ArticleRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.TagRepository;
+import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -30,13 +32,17 @@ public class TagService {
     @Autowired
     ModelMapper modelMapper;
     @Autowired
+    CustomUserDetailsService customUserDetailsService;
+    @Autowired
     ServiceUtil util;
     @Autowired
     TagRepository tagRepository;
     @Autowired
     ArticleRepository articleRepository;
+    @Autowired
+    UserRepository userRepository;
 
-    public ResponseEntity<ResponseDto> createTag(Tag tag, String email) {
+    public ResponseDto createTag(Tag tag, String email) {
         tag.setCreatedBy(email);
         try{
             this.tagRepository.save(tag);
@@ -45,11 +51,10 @@ public class TagService {
         {
             throw new CustomException("Sorry, Tag has not been saved!!");
         }
-        return new ResponseEntity<>(new ResponseDto("Successful","Tag "+tag.getTagname() +" has been saved successfully!!"),
-                HttpStatus.CREATED);
+        return new ResponseDto("Successful","Tag "+tag.getTagname() +" has been saved successfully!!");
     }
 
-    public ResponseEntity<List<TagDetails>> viewAllTag() {
+    public List<TagDetails> viewAllTag() {
         List<Tag> lagList= this.tagRepository.findAll();
         if(lagList.isEmpty())
         {
@@ -57,11 +62,11 @@ public class TagService {
         }
         Type tagDetails = new TypeToken<List<TagDetails>>(){}.getType();
         List<TagDetails> tagDetailsList = modelMapper.map(lagList, tagDetails);
-        return new ResponseEntity<List<TagDetails>>(tagDetailsList, HttpStatus.FOUND);
+        return tagDetailsList;
     }
 
     @Transactional
-    public ResponseEntity<ResponseDto> deleteTag(String tagname) {
+    public ResponseDto deleteTag(String tagname) {
         Tag tag=tagRepository.findByTagName(tagname);
         util.authenticateUserSameAsLogedInUser(tag.getCreatedBy(), "Authentication Failed!!");
         try {
@@ -78,7 +83,28 @@ public class TagService {
         {
             throw new CustomException("Failed");
         }
-        return new ResponseEntity<ResponseDto>(new ResponseDto("Successful", "Tag successfully deleted"),
-                                                HttpStatus.GONE);
+        return new ResponseDto("Successful", "Tag successfully deleted");
+    }
+
+    public ResponseDto updateTag(String tagname, String newTagName) {
+        Tag tag= tagRepository.findByTagName(tagname);
+        System.out.println(tag.getTagId());
+        util.authenticateUserSameAsLogedInUser(tag.getCreatedBy(), "Authentication Failed!!");
+
+        Tag newTag= new Tag(newTagName, customUserDetailsService.currentLogedInUserName());
+
+        List<Article> articles= userRepository.findUserByEmail(tag.getCreatedBy()).getListOfArticle();
+        for(Article article: articles)
+        {
+            if(article.getTagList().contains(tag)) {
+                tag.removeArticleFromTag(article);
+                article.removeTagFromArticle(tag);
+                article.addTagInArticle(newTag);
+                newTag.addArticleInTag(article);
+            }
+        }
+        tagRepository.save(newTag);
+        if(tag.getArticleList().size()==0) tagRepository.delete(tag);
+        return new ResponseDto("update", tagname +" update to "+newTagName+"." );
     }
 }
