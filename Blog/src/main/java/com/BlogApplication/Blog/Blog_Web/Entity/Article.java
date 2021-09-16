@@ -9,6 +9,7 @@ import java.util.*;
 
 @Setter
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "ARTICLES")
@@ -19,7 +20,7 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long articleId;
 
-    private UUID uuid;
+    private String uuid;
 
     @Column(name = "TITLE")
     @NotNull(message = "Title should not be null")
@@ -42,15 +43,15 @@ public class Article {
     private Users users;
 
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-    private List<Tag> tagList= new ArrayList<>();
+    private List<Tag> tags= new ArrayList<>();
 
     public void addTagInArticle(Tag tag)
     {
-        this.tagList.add(tag);
+        this.tags.add(tag);
     }
 
     public void removeTagFromArticle(Tag tag)
     {
-        this.tagList.remove(tag);
+        this.tags.remove(tag);
     }
 }

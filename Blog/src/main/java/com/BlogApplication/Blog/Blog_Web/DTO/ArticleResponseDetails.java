@@ -12,7 +12,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class ArticleResponseDetails {
     private Date updatedDate;
+    private Long articleId;
     private String title;
     private String content;
-    private Set<TagDto> tag;
+    private Set<TagDto> tags;
 }

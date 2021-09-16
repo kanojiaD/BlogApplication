@@ -87,7 +87,7 @@ public class ArticleController {
      * @RequestBody : article
      * @return : Article
      */
-    @PutMapping("blog/article/{articleid}/")
+    @PutMapping("/blog/article/{articleid}/")
     public ResponseEntity<ResponseDto> updateArticle(@PathVariable String articleid,
                                                  @RequestBody Article article)
     {
@@ -116,13 +116,25 @@ public class ArticleController {
      * @param : ?id=someArticleId&tag=someTagName
      * @return : Article
      */
-    @PutMapping("blog/article/")
-    public ResponseEntity<ArticleResponseDetails> addTagInArticle(@RequestParam("id") String articleid,
+    @PutMapping("/blog/article/")
+    public ResponseEntity<ArticleResponseDetails> addTagInArticle(@RequestParam("id") Long articleid,
                                                                   @RequestParam("tag") String tagname)
     {
-       return new ResponseEntity<>(this.articleService.addTagInArticle(Long.parseLong(articleid), tagname),
+       return new ResponseEntity<>(this.articleService.addTagInArticle(articleid, tagname),
                              HttpStatus.CREATED);
     }
+
+    /**
+     * remove tag from article
+     * @param ?removetag=someTagName
+     */
+    @PutMapping("/blog/article/{articleId}/tag")
+    public ResponseEntity<ResponseDto> removeArticlesTag(@PathVariable(value = "articleId") Long id,
+                                    @RequestParam(value = "removetag") String tagname)
+    {
+        return new ResponseEntity<>(this.articleService.removeArticlesTag(id, tagname),HttpStatus.GONE);
+    }
+
 
     /**
      * 8.
@@ -130,7 +142,7 @@ public class ArticleController {
      * Authentication required.
      * @return List of article.
      */
-    @GetMapping("/blog/articleByOrder/")
+    @GetMapping("/blog/article/")
     public ResponseEntity<List<ArticleResponseDetails>> getArticleByOrder()
     {
         return new ResponseEntity<List<ArticleResponseDetails>>(this.articleService.getArticleByOrder(), HttpStatus.FOUND);
@@ -143,7 +155,7 @@ public class ArticleController {
      * @return List of Article
      */
     @GetMapping("/blog/searchArticle/")
-    public ResponseEntity<List<Article>> searchArticle(@RequestParam(value = "tag", required = false) String tagname,
+    public ResponseEntity<List<ArticleResponseDetails>> searchArticle(@RequestParam(value = "tag", required = false) String tagname,
                                                        @RequestParam(value = "editor", required = false) String username,
                                                        @RequestParam(value = "article", required = false) String title)
 

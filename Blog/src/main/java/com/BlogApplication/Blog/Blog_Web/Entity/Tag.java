@@ -24,24 +24,24 @@ public class Tag {
     private Long tagId;
 
     @Column( name = "TAG_NAME", unique = true)
-    @NotNull(message = "Tag should not be null")
+    @NotNull(message = "Tag Name should not be null")
     private String tagname;
 
     @Column(name = "CREATED_BY")
     private String createdBy;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "tagList", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    private List<Article> articleList= new ArrayList<>();
+    @ManyToMany(mappedBy = "tags", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<Article> Articles= new ArrayList<>();
 
     public void addArticleInTag(Article article)
     {
-        this.articleList.add(article);
+        this.Articles.add(article);
     }
 
     public void removeArticleFromTag(Article article)
     {
-        this.articleList.remove(article);
+        this.Articles.remove(article);
     }
 
     public Tag(String tagname, String createdBy) {

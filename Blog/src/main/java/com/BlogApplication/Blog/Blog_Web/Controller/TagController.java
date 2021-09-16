@@ -28,6 +28,7 @@ public class TagController {
      * This API is use for create tag.
      * Authentication required.
      * @RequestBody : tag
+     * @deprecated
      * @return : tag
      */
     @PostMapping("/blog/tag/")
@@ -51,7 +52,7 @@ public class TagController {
     }
 
     /**
-     * This API is use for Delete tag.
+     * Delete tag.
      */
     @DeleteMapping("/blog/tag/{tagname}/")
     public ResponseEntity<ResponseDto>deleteTag(@PathVariable String tagname)

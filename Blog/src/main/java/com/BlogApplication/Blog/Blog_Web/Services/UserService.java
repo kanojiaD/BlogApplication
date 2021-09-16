@@ -7,6 +7,7 @@ import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Entity.Users;
 import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Message.BlogMessage;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
 import org.modelmapper.ModelMapper;
@@ -35,8 +36,12 @@ public class UserService {
 
     @Transactional
     public ResponseDto userRegistration(Users users) {
+        if(!users.getEmail().toLowerCase().endsWith(".com"))
+        {
+            return new ResponseDto("Registration failed", "Email must be ends with '.com'");
+        }
         users.setUserid(12L);
-        users.setUserUUID(new UUID(9223372036854775807L, -9223372036854775808L));
+        users.setUserUUID(UUID.randomUUID().toString());
         ResponseDto responseDto= new ResponseDto(users);
         users.setPassword(bCryptPasswordEncoder.encode(users.getPassword()));
         if(users.getRole()== null) users.setRole("ROLE_USER");
@@ -60,7 +65,7 @@ public class UserService {
 
     public List<ArticleResponseDetails> viewUserAllHisArticle() {
         Users users = userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
-        List<Article> listOfArticle = users.getListOfArticle();
+        List<Article> listOfArticle = users.getArticles();
         if (listOfArticle.isEmpty()) {
             throw new CustomException("No article found for this User");
         }

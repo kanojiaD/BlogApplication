@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 public class ServiceUtil {
     @Autowired
     CustomUserDetailsService customUserDetailsService;
-
     public void authenticateUserSameAsLogedInUser(String Email, String message)
     {
         if(!customUserDetailsService.currentLogedInUserName().equals(Email))
@@ -22,4 +21,5 @@ public class ServiceUtil {
         String formedUUID=uuid.replace("-","_").trim();
         return formedTitle+"_"+formedUUID;
     }
+
 }

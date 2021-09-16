@@ -24,7 +24,7 @@ public class Users {
     private Long userid;
 
     @Column(name = "USER_UUID")
-    private UUID userUUID;
+    private String userUUID;
 
     @Column(name = "NAME")
     @NotNull(message = "User name should not be null")
@@ -49,16 +49,16 @@ public class Users {
     private String role;
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
-    private List<Article> listOfArticle= new ArrayList<>();
+    private List<Article> articles= new ArrayList<>();
 
     public void addArticleInBloggerList(Article article)
     {
-        this.listOfArticle.add(article);
+        this.articles.add(article);
     }
 
     public void removeArticleFromBloggerList(Article article)
     {
-        this.listOfArticle.remove(article);
+        this.articles.remove(article);
     }
 
 }

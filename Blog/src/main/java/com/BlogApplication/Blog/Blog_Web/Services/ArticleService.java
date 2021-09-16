@@ -56,20 +56,21 @@ public class ArticleService {
 
     @Transactional
     public ArticleResponseDetails createArticle(String tagname,
-                                                                ArticleRequestDetails requestArticle)
+                                                ArticleRequestDetails requestArticle)
     {
         Article article= new Article();
-        UUID uuid=new UUID(9223372036854775807L, -9223372036854775808L);
-        article.setUuid(uuid);
+        String uuid=UUID.randomUUID().toString();
         article= modelMapper.map(requestArticle, Article.class);
-        List<String> tagFromRequestBody= requestArticle.getTags();
+        List<String> tagFromRequestBody= requestArticle.getTag();
 
-        article.setSlug(util.generateSlug(requestArticle.getTitle(),uuid.toString()));
+        article.setUuid(uuid);
+        article.setSlug(util.generateSlug(requestArticle.getTitle(),uuid));
         article.setPublishedDate(new Date());
         article.setUpdatedDate(new Date());
 
         Users users = userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
         article.setUsers(users);
+
 
         if(tagname!=null) {
             Tag tag = tagRepository.findByTagName(tagname);
@@ -81,11 +82,12 @@ public class ArticleService {
             tag.addArticleInTag(article);
             article.addTagInArticle(tag);
         }
-
-        if(tagFromRequestBody!=null) {
+        if(tagFromRequestBody!=null)
+        {
             for (String requestBodyTag : tagFromRequestBody) {
                 Tag newTag = tagRepository.findByTagName(requestBodyTag);
-                if (newTag == null) {
+                if (newTag == null)
+                {
                     newTag = new Tag(requestBodyTag, customUserDetailsService.currentLogedInUserName());
                     tagRepository.save(newTag);
                 }
@@ -95,7 +97,6 @@ public class ArticleService {
         }
 
         this.articleRepository.save(article);
-
         ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
         return articleResponseDetails;
     }
@@ -113,7 +114,7 @@ public class ArticleService {
         util.authenticateUserSameAsLogedInUser(article.getUsers().getEmail(), "Not valid User for delete this article!!");
 
         List<Tag> tags= new ArrayList<>();
-        tags.addAll(article.getTagList());
+        tags.addAll(article.getTags());
         for(Tag tag : tags)
         {
             tag.removeArticleFromTag(article);
@@ -122,7 +123,7 @@ public class ArticleService {
         this.articleRepository.delete(article);
         for(Tag tag:tags)
         {
-            if((tag.getArticleList().size()==1 && tag.getArticleList().get(0).getArticleId()==articleid)||tag.getArticleList().size()==0)
+            if((tag.getArticles().size()==1 && tag.getArticles().get(0).getArticleId()==articleid)||tag.getArticles().size()==0)
             {
                 tagService.deleteTag(tag.getTagname());
             }
@@ -138,7 +139,7 @@ public class ArticleService {
         {
             throw new CustomException("No Article contain the tag \'"+tagname+"\'");
         }
-        List<Article> articles= tag.getArticleList();
+        List<Article> articles= tag.getArticles();
         if(articles.isEmpty())
         {
             throw new CustomException("No article found for the tag \'"+tagname+"\'");
@@ -196,16 +197,15 @@ public class ArticleService {
         util.authenticateUserSameAsLogedInUser(article.getUsers().getEmail(), "Not valid User for add tag in this article!!");
         Tag tag= tagRepository.findByTagName(tagname);
         if(tag==null) {
-            throw new CustomException("tag not found for tagname \'"+tagname+"\'");
+            tag= new Tag(tagname, customUserDetailsService.currentLogedInUserName());
         }
-        if(article.getTagList().contains(tag))
+        if(article.getTags().contains(tag))
         {
-            throw new CustomException("Tag \'"+tagname+"\' already present");
+            throw new CustomException("Tag \'"+tagname+"\' already present in article "+article.getTitle());
         }
         tag.addArticleInTag(article);
         article.addTagInArticle(tag);
         articleRepository.save(article);
-        tagRepository.save(tag);
 
         ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
         return articleResponseDetails;
@@ -223,14 +223,14 @@ public class ArticleService {
         return articleResponseDetailsList;
     }
 
-    public List<Article> searchArticle(String tagname, String name,String title) {
+    public List<ArticleResponseDetails> searchArticle(String tagname, String name,String title) {
         List<Article> articleList= articleRepository.findAll();
         List<Article> finalList= new ArrayList<>();
         for(Article article : articleList)
         {
             if((title==null || article.getTitle().equals(title)) && (name==null || article.getUsers().getName().equals(name)))
             {
-                List<Tag> taglist= article.getTagList();
+                List<Tag> taglist= article.getTags();
                 for(Tag tag: taglist)
                 {
                     if((tagname==null || tag.getTagname().equals(tagname)) && !finalList.contains(article))
@@ -238,7 +238,17 @@ public class ArticleService {
                 }
             }
         }
-        return finalList;
+        Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
+        List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(finalList, articleDetails);
+        return articleResponseDetailsList;
     }
 
+    public ResponseDto removeArticlesTag(Long id, String tagname) {
+        Article article= articleRepository.getById(id);
+        Tag tag= tagRepository.findByTagName(tagname);
+        article.removeTagFromArticle(tag);
+        tag.removeArticleFromTag(article);
+        if(tag.getArticles().size()==0) tagRepository.delete(tag);
+        return new ResponseDto("Done",tagname+" tag removed from "+article.getTitle());
+    }
 }

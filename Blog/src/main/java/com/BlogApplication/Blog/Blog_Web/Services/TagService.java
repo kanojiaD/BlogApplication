@@ -7,7 +7,6 @@ import com.BlogApplication.Blog.Blog_Web.DTO.TagDetails;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
 import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
-import com.BlogApplication.Blog.Blog_Web.Message.BlogMessage;
 import com.BlogApplication.Blog.Blog_Web.Repository.ArticleRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.TagRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
@@ -15,8 +14,6 @@ import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +39,7 @@ public class TagService {
     @Autowired
     UserRepository userRepository;
 
+    @Deprecated
     public ResponseDto createTag(Tag tag, String email) {
         tag.setCreatedBy(email);
         try{
@@ -56,10 +54,6 @@ public class TagService {
 
     public List<TagDetails> viewAllTag() {
         List<Tag> lagList= this.tagRepository.findAll();
-        if(lagList.isEmpty())
-        {
-            throw new CustomException(" Tag not found!!");
-        }
         Type tagDetails = new TypeToken<List<TagDetails>>(){}.getType();
         List<TagDetails> tagDetailsList = modelMapper.map(lagList, tagDetails);
         return tagDetailsList;
@@ -68,13 +62,13 @@ public class TagService {
     @Transactional
     public ResponseDto deleteTag(String tagname) {
         Tag tag=tagRepository.findByTagName(tagname);
-        util.authenticateUserSameAsLogedInUser(tag.getCreatedBy(), "Authentication Failed!!");
+        //util.authenticateUserSameAsLogedInUser(tag.getCreatedBy(), "Authentication Failed!!");
         try {
-            List<Article> articleList= tag.getArticleList();
+            List<Article> articleList= tag.getArticles();
             for(Article article: articleList)
             {
                 articleRepository.delete(article);
-                article.getTagList().remove(tag);
+                article.getTags().remove(tag);
                 articleRepository.save(article);
             }
             this.tagRepository.delete(tag);
@@ -86,6 +80,7 @@ public class TagService {
         return new ResponseDto("Successful", "Tag successfully deleted");
     }
 
+    @Transactional
     public ResponseDto updateTag(String tagname, String newTagName) {
         Tag tag= tagRepository.findByTagName(tagname);
         System.out.println(tag.getTagId());
@@ -93,10 +88,10 @@ public class TagService {
 
         Tag newTag= new Tag(newTagName, customUserDetailsService.currentLogedInUserName());
 
-        List<Article> articles= userRepository.findUserByEmail(tag.getCreatedBy()).getListOfArticle();
+        List<Article> articles= userRepository.findUserByEmail(tag.getCreatedBy()).getArticles();
         for(Article article: articles)
         {
-            if(article.getTagList().contains(tag)) {
+            if(article.getTags().contains(tag)) {
                 tag.removeArticleFromTag(article);
                 article.removeTagFromArticle(tag);
                 article.addTagInArticle(newTag);
@@ -104,7 +99,7 @@ public class TagService {
             }
         }
         tagRepository.save(newTag);
-        if(tag.getArticleList().size()==0) tagRepository.delete(tag);
+        if(tag.getArticles().size()==0) tagRepository.delete(tag);
         return new ResponseDto("update", tagname +" update to "+newTagName+"." );
     }
 }
