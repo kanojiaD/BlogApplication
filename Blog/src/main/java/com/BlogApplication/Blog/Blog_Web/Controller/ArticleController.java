@@ -55,7 +55,7 @@ public class ArticleController {
      * @Pathvariable : slug
      * @return : Article
      */
-    @GetMapping("/blog/article/{slug}/")
+    @GetMapping("/b1/article/{slug}/")
     public ResponseEntity<ArticleResponseDTO> viewArticleBySlug(@PathVariable(value = "slug") String slug)
     {
         return new ResponseEntity<ArticleResponseDTO>(this.articleService.viewArticleBySlug(slug),
@@ -70,7 +70,7 @@ public class ArticleController {
      * @param ?tag=tagname
      * @return : Article
      */
-    @PostMapping("/blog/article/")
+    @PostMapping("/b2/article/")
     public ResponseEntity<ArticleResponseDTO> createArticle(@Valid @RequestBody ArticleRequestDTO article,
                                                             @RequestParam(value = "tag", required = false) String tagname)
     {
@@ -88,7 +88,7 @@ public class ArticleController {
      * @RequestBody : article
      * @return : Article
      */
-    @PutMapping("/blog/article/{articleid}/")
+    @PutMapping("/b2/article/{articleid}/")
     public ResponseEntity<CustomMessage> updateArticle(@PathVariable String articleid,
                                                    @RequestBody Article article)
     {
@@ -103,7 +103,7 @@ public class ArticleController {
      * @Pathvariable : articleid
      * @return
      */
-    @DeleteMapping("/blog/article/{articleid}/")
+    @DeleteMapping("/b2/article/{articleid}/")
     public ResponseEntity<CustomMessage> deleteArticle(@PathVariable String articleid) {
         return new ResponseEntity<>(this.articleService.deleteArticle(Long.parseLong(articleid)),
                 HttpStatus.GONE);
@@ -116,7 +116,7 @@ public class ArticleController {
      * @param : ?id=someArticleId&tag=someTagName
      * @return : Article
      */
-    @PutMapping("/blog/article/")
+    @PutMapping("/b2/article/")
     public ResponseEntity<ArticleResponseDTO> addTagInArticle(@RequestParam("id") Long articleid,
                                                               @RequestParam("tag") String tagname)
     {
@@ -128,7 +128,7 @@ public class ArticleController {
      * remove tag from article
      * @param ?removetag=someTagName
      */
-    @PutMapping("/blog/article/{articleId}/tag")
+    @PutMapping("/b2/article/{articleId}/tag")
     public ResponseEntity<CustomMessage> removeArticlesTag(@PathVariable(value = "articleId") Long id,
                                                        @RequestParam(value = "removetag") String tagname)
     {
@@ -143,7 +143,7 @@ public class ArticleController {
      * @param ?pagenumber=somePageNumber&pagesize=somePageSize
      * @return List of article.
      */
-    @GetMapping("/blog/article/")
+    @GetMapping("/b1/article/")
     public ResponseEntity<List<ArticleResponseDTO>> getArticleByOrder(@RequestParam(value = "pagenumber") Integer pagenumber,
                                                                       @RequestParam(value = "pagesize", required = false) Integer pagesize)
     {
@@ -156,7 +156,7 @@ public class ArticleController {
      * @param ?tags=ListOfTag&authorName=someName&articleTitle=someArticle'sTitle
      * @return List of Article
      */
-    @GetMapping("/blog/articles/")
+    @GetMapping("/b1/articles/")
     public ResponseEntity<List<ArticleResponseDTO>> searchArticle(@RequestParam(value = "tags", required = false) List<String> tagname,
                                                                   @RequestParam(value = "authorName", required = false) String username,
                                                                   @RequestParam(value = "articleTitle", required = false) String title)
@@ -168,7 +168,7 @@ public class ArticleController {
 
 
 
-    @PostMapping("/blog/addDummyData/")
+    @PostMapping("/b2/addDummyData/")
     public void addData()
     {
         articleService.addDummydata();

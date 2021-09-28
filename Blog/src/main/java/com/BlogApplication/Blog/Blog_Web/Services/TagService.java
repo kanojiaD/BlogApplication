@@ -25,8 +25,6 @@ import java.util.List;
 public class TagService {
 
     @Autowired
-    JwtUtil jwtUtil;
-    @Autowired
     ModelMapper modelMapper;
     @Autowired
     CustomUserDetailsService customUserDetailsService;
@@ -47,7 +45,7 @@ public class TagService {
         }
         catch (Exception e)
         {
-            throw new CustomException("Sorry, Tag has not been saved!!");
+            throw new CustomException("Tag not saved!!");
         }
         return new CustomMessage("Tag "+tag.getTagname() +" has been saved successfully!!");
     }
@@ -62,7 +60,6 @@ public class TagService {
     @Transactional
     public CustomMessage deleteTag(String tagname) {
         Tag tag=tagRepository.findByTagName(tagname);
-        //util.authenticateUserSameAsLogedInUser(tag.getCreatedBy(), "Authentication Failed!!");
         try {
             List<Article> articleList= tag.getArticles();
             for(Article article: articleList)
@@ -75,9 +72,9 @@ public class TagService {
         }
         catch (Exception e)
         {
-            throw new CustomException("Tag Not delete");
+            throw new CustomException("Tag Not delete!!");
         }
-        return new CustomMessage("Tag successfully deleted");
+        return new CustomMessage("Tag successfully deleted!!");
     }
 
     @Transactional

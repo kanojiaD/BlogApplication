@@ -27,7 +27,7 @@ public class UserController {
      * @RequestBody : blogger
      * @return : A message that registration is successful or not.
      */
-    @PostMapping("/blog/signup/")
+    @PostMapping("/b1/signup/")
     public ResponseEntity<CustomMessage> userRegistration(@Valid @RequestBody Users users)
     {
         try{
@@ -46,7 +46,7 @@ public class UserController {
      * @Pathvariable : userid
      * @return : Blogger Details
      */
-    @GetMapping("/blog/user/")
+    @GetMapping("/b2/user/")
     public ResponseEntity<UserDTO> getUser()
     {
         return new ResponseEntity<UserDTO>(this.userService.getUser(), HttpStatus.OK);
@@ -59,7 +59,7 @@ public class UserController {
      * @Pathvariable : userid
      * @return : List of Article
      */
-    @GetMapping("/blog/user/articles/")
+    @GetMapping("/b2/user/articles/")
     public ResponseEntity<List<ArticleResponseDTO>> viewUserAllHisArticle()
     {
         return new ResponseEntity<List<ArticleResponseDTO>>(this.userService.viewUserAllHisArticle(), HttpStatus.FOUND);
@@ -71,7 +71,7 @@ public class UserController {
      *  Authentication required.
      * @return : ResponseDto.
      */
-    @DeleteMapping("/blog/user/")
+    @DeleteMapping("/b2/user/")
     public ResponseEntity<CustomMessage> deleteUser()
     {
         return new ResponseEntity<>(this.userService.deleteUser(), HttpStatus.GONE);

@@ -45,7 +45,7 @@ public class TagController {
      * Authentication required.
      * @return : List of All Tag
      */
-    @GetMapping("/blog/tag/")
+    @GetMapping("/b1/tag/")
     public ResponseEntity<List<TagDetailsDTO>>  viewAllTag()
     {
         return new ResponseEntity<List<TagDetailsDTO>>(this.tagService.viewAllTag(), HttpStatus.FOUND);
@@ -54,7 +54,7 @@ public class TagController {
     /**
      * Delete tag.
      */
-    @DeleteMapping("/blog/tag/{tagname}/")
+    @DeleteMapping("/b2/tag/{tagname}/")
     public ResponseEntity<CustomMessage>deleteTag(@PathVariable String tagname)
     {
         return new ResponseEntity<>(this.tagService.deleteTag(tagname),
@@ -65,7 +65,7 @@ public class TagController {
      * update tag
      * @param ?tag=presentTag&update=someTag
      */
-    @PutMapping("/blog/tag/")
+    @PutMapping("/b2/tag/")
     public ResponseEntity<CustomMessage> updateTag(@RequestParam(value = "tag") String tagname,
                                                @RequestParam(value = "update") String newTagName)
     {

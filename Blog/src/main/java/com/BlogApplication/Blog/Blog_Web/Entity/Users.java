@@ -32,15 +32,15 @@ public class Users {
     @Size(min = 3, max = 20, message = "Length of name should be greater than 3 and less than 20")
     private String name;
 
-    @Column(name = "EMAIL_ID", unique = true)
+    @Column(name = "EMAIL_ID", unique = true, updatable = false)
     @NotNull(message = "Email should not be null")
     @NotSpecialCharacter(message = "Email must not contains special character")
     @Email
     private String email;
 
-    @Column(name = "PASSWORD")
+    @Column(name = "PASSWORD", nullable = false)
     @NotNull(message = "Password should not be null")
-    @Size(min=8, message = "Length of password should be greater than or equal to 8")
+    @Size(min=8, message = "Length of password should be at least 8")
     private String password;
 
     @Column(name = "CONTACT_NUMBER")

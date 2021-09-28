@@ -6,6 +6,7 @@ import com.BlogApplication.Blog.Blog_Web.DTO.UserDTO;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Entity.Users;
 import com.BlogApplication.Blog.Blog_Web.Exceptions.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.UserNotFoundException;
 import com.BlogApplication.Blog.Blog_Web.Message.CustomMessage;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
@@ -55,7 +56,7 @@ public class UserService {
         }
         catch(Exception e)
         {
-            throw new CustomException("User not found");
+            throw new UserNotFoundException("User Not Found!!");
         }
         UserDTO userDTO = modelMapper.map(users, UserDTO.class);
         return userDTO;
@@ -77,7 +78,7 @@ public class UserService {
         }
         catch (Exception e)
         {
-            throw new CustomException("User not found!!");
+            throw new UserNotFoundException("User Not Found!!");
         }
     }
 }

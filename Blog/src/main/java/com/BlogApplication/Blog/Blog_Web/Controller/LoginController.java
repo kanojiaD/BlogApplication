@@ -30,7 +30,7 @@ public class LoginController {
      * @RequestBody : JwtRequest
      * @return : JwtResponse(Token).
      */
-    @PostMapping("/blog/signin/")
+    @PostMapping("/b1/signin/")
     public ResponseEntity<?> generateToken(@RequestBody JwtRequest jwtRequest)
     {
         try{
