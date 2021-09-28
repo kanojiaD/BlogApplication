@@ -43,7 +43,7 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/blog/signin/").permitAll()
                 .antMatchers("/blog/signup/").permitAll()
-                .antMatchers("/blog/articles/").permitAll()
+                .antMatchers("/blog/articles/","/blog/addDummyData/").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

@@ -1,5 +1,6 @@
 package com.BlogApplication.Blog.Blog_Web.Entity;
 
+import com.BlogApplication.Blog.Blog_Web.CustomAnnotation.NotSpecialCharacter;
 import lombok.*;
 
 import javax.persistence.*;
@@ -33,6 +34,7 @@ public class Users {
 
     @Column(name = "EMAIL_ID", unique = true)
     @NotNull(message = "Email should not be null")
+    @NotSpecialCharacter(message = "Email must not contains special character")
     @Email
     private String email;
 
@@ -47,6 +49,13 @@ public class Users {
 
     @Column(name = "ROLE")
     private String role;
+
+    public Users(String name, String email, String password, String contact) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.contact = contact;
+    }
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Article> articles= new ArrayList<>();

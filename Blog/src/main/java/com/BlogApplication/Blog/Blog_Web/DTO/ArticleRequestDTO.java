@@ -9,8 +9,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ArticleRequestDetails {
-    private String articleId;
+public class ArticleRequestDTO {
+    //private String articleId;
     private String title;
     private String content;
     private List<String> tag;

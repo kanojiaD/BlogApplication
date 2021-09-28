@@ -4,7 +4,9 @@ import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Security.Model.JwtRequest;
 import com.BlogApplication.Blog.Blog_Security.Model.JwtResponse;
 import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,14 +31,14 @@ public class LoginController {
      * @return : JwtResponse(Token).
      */
     @PostMapping("/blog/signin/")
-    public ResponseEntity<?> generateToken(@RequestBody JwtRequest jwtRequest) throws Exception
+    public ResponseEntity<?> generateToken(@RequestBody JwtRequest jwtRequest)
     {
         try{
             this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(jwtRequest.getUsername(), jwtRequest.getPassword()));
         }
-        catch(UsernameNotFoundException e)
+        catch(Exception e)
         {
-            throw new Exception("Bad Credentials");
+            throw new UserNotFoundException("Invalid Email or Password");
         }
         UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(jwtRequest.getUsername());
         String token = this.jwtUtil.generateToken(userDetails);

@@ -10,10 +10,11 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleResponseDetails {
-    private Date updatedDate;
+public class ArticleResponseDTO {
+    private Date updatedOn;
     private Long articleId;
+    private String author;
     private String title;
     private String content;
-    private Set<TagDto> tags;
+    private Set<TagDTO> tags;
 }

@@ -1,5 +1,7 @@
-package com.BlogApplication.Blog.Blog_Web.ExceptionHandling;
+package com.BlogApplication.Blog.Blog_Web.ExceptionHandler;
 
+import com.BlogApplication.Blog.Blog_Web.Exceptions.ArticleNotFoundException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.UserNotFoundException;
 import com.BlogApplication.Blog.Blog_Web.Message.ExceptionMessage;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,17 +21,40 @@ import java.util.Map;
 public class BlogExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {Exception.class})
-    public ResponseEntity<ExceptionMessage> allExceptionHandler(Exception e, WebRequest rquest)
+    public ResponseEntity<ExceptionMessage> allExceptionHandler(Exception ex, WebRequest rquest)
     {
-        String errorMessageDescription= e.getLocalizedMessage();
-        if(errorMessageDescription==null) errorMessageDescription=e.toString();
+        String errorMessageDescription= ex.getLocalizedMessage();
+        if(errorMessageDescription==null) errorMessageDescription=ex.toString();
 
         return new ResponseEntity<ExceptionMessage>(new ExceptionMessage(new Date(),
-                                                        e.getLocalizedMessage()),
+                                                        errorMessageDescription),
                                                         new HttpHeaders(),
                                                         HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(value = {UserNotFoundException.class})
+    public ResponseEntity<ExceptionMessage> userNotFoundExceptionHandler(UserNotFoundException ex, WebRequest rquest)
+    {
+        String errorMessageDescription= ex.getLocalizedMessage();
+        if(errorMessageDescription==null) errorMessageDescription=ex.toString();
+
+        return new ResponseEntity<ExceptionMessage>(new ExceptionMessage(new Date(),
+                errorMessageDescription),
+                new HttpHeaders(),
+                HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(value = {ArticleNotFoundException.class})
+    public ResponseEntity<ExceptionMessage> articleNotFoundExceptionHandler(ArticleNotFoundException ex, WebRequest rquest)
+    {
+        String errorMessageDescription= ex.getLocalizedMessage();
+        if(errorMessageDescription==null) errorMessageDescription=ex.toString();
+
+        return new ResponseEntity<ExceptionMessage>(new ExceptionMessage(new Date(),
+                errorMessageDescription),
+                new HttpHeaders(),
+                HttpStatus.NO_CONTENT);
+    }
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,

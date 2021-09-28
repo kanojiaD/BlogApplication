@@ -7,9 +7,9 @@ import java.util.Set;
 
 @Setter
 @Getter
-public class BloggerDetails {
+public class UserDTO {
     private String name;
     private String email;
     private String contact;
-    Set<ArticleResponseDetails> Articles;
+    Set<ArticleResponseDTO> Articles;
 }

@@ -1,4 +1,4 @@
-package com.BlogApplication.Blog.Blog_Web.ExceptionHandling;
+package com.BlogApplication.Blog.Blog_Web.Exceptions;
 
 public class CustomException extends RuntimeException{
 

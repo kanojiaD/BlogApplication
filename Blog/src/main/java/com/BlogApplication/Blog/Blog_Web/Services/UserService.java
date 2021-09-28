@@ -1,13 +1,12 @@
 package com.BlogApplication.Blog.Blog_Web.Services;
 
 import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.BloggerDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDTO;
+import com.BlogApplication.Blog.Blog_Web.DTO.UserDTO;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Entity.Users;
-import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
-import com.BlogApplication.Blog.Blog_Web.Message.BlogMessage;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Message.CustomMessage;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
 import org.modelmapper.ModelMapper;
@@ -35,21 +34,20 @@ public class UserService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public ResponseDto userRegistration(Users users) {
+    public CustomMessage userRegistration(Users users) {
         if(!users.getEmail().toLowerCase().endsWith(".com"))
         {
-            return new ResponseDto("Registration failed", "Email must be ends with '.com'");
+            return new CustomMessage("Email must be ends with '.com'");
         }
-        users.setUserid(12L);
+        String message= "email id is "+users.getEmail()+" and password is "+users.getPassword();
         users.setUserUUID(UUID.randomUUID().toString());
-        ResponseDto responseDto= new ResponseDto(users);
         users.setPassword(bCryptPasswordEncoder.encode(users.getPassword()));
         if(users.getRole()== null) users.setRole("ROLE_USER");
         this.userRepository.save(users);
-        return responseDto;
+        return new CustomMessage(message);
     }
 
-    public BloggerDetails getUser() {
+    public UserDTO getUser() {
         Users users = new Users();
         try
         {
@@ -59,26 +57,23 @@ public class UserService {
         {
             throw new CustomException("User not found");
         }
-        BloggerDetails bloggerDetails= modelMapper.map(users, BloggerDetails.class);
-        return bloggerDetails;
+        UserDTO userDTO = modelMapper.map(users, UserDTO.class);
+        return userDTO;
     }
 
-    public List<ArticleResponseDetails> viewUserAllHisArticle() {
+    public List<ArticleResponseDTO> viewUserAllHisArticle() {
         Users users = userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
         List<Article> listOfArticle = users.getArticles();
-        if (listOfArticle.isEmpty()) {
-            throw new CustomException("No article found for this User");
-        }
-
-        Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
-        List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(listOfArticle, articleDetails);
-        return articleResponseDetailsList;
+        Type articleDetails = new TypeToken<List<ArticleResponseDTO>>(){}.getType();
+        List<ArticleResponseDTO> articleResponseDTOList = modelMapper.map(listOfArticle, articleDetails);
+        return articleResponseDTOList;
     }
 
-    public ResponseDto deleteUser() {
+    public CustomMessage deleteUser() {
         try {
-            this.userRepository.delete(this.userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName()));
-            return new ResponseDto("Successful", "The User Account has been removed!!");
+            Users user=this.userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
+            this.userRepository.delete(user);
+            return new CustomMessage(user.getEmail()+" account has been removed!!");
         }
         catch (Exception e)
         {

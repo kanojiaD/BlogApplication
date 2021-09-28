@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Setter
@@ -20,7 +21,7 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long articleId;
 
-    private String uuid;
+    private String postId;
 
     @Column(name = "TITLE")
     @NotNull(message = "Title should not be null")
@@ -29,18 +30,22 @@ public class Article {
     @Column(name="CONTENT")
     private String content;
 
-    @Column(name = "SLUG", unique = true)
-    private String slug;
+    @Column(name = "PUBLISHED_ON", nullable = false)
+    private Timestamp publishedOn;
 
-    @Column(name = "PUBLISH_DATE", nullable = false)
-    private Date publishedDate;
-
-    @Column(name = "UPDATE_DATE", nullable = false)
-    private Date updatedDate;
+    @Column(name = "UPDATED_ON", nullable = false)
+    private Timestamp updatedOn;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     private Users users;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
+    private Set<Terms> terms=new HashSet<>();
+    public void addTerms(Terms term)
+    {
+        terms.add(term);
+    }
 
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     private List<Tag> tags= new ArrayList<>();

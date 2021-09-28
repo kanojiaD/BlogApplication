@@ -1,9 +1,9 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
 import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
-import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
-import com.BlogApplication.Blog.Blog_Web.DTO.TagDetails;
+import com.BlogApplication.Blog.Blog_Web.DTO.TagDetailsDTO;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
+import com.BlogApplication.Blog.Blog_Web.Message.CustomMessage;
 import com.BlogApplication.Blog.Blog_Web.Services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,8 +32,8 @@ public class TagController {
      * @return : tag
      */
     @PostMapping("/blog/tag/")
-    public ResponseEntity<ResponseDto> createTag(@Valid @RequestBody Tag tag,
-                                                 @RequestHeader(value = "Authorization") String authToken)
+    public ResponseEntity<CustomMessage> createTag(@Valid @RequestBody Tag tag,
+                                                   @RequestHeader(value = "Authorization") String authToken)
     {
         return new ResponseEntity<>(this.tagService.createTag(tag, jwtUtil.extractUsername(authToken.substring(7))),
                 HttpStatus.CREATED);
@@ -46,18 +46,18 @@ public class TagController {
      * @return : List of All Tag
      */
     @GetMapping("/blog/tag/")
-    public ResponseEntity<List<TagDetails>>  viewAllTag()
+    public ResponseEntity<List<TagDetailsDTO>>  viewAllTag()
     {
-        return new ResponseEntity<List<TagDetails>>(this.tagService.viewAllTag(), HttpStatus.FOUND);
+        return new ResponseEntity<List<TagDetailsDTO>>(this.tagService.viewAllTag(), HttpStatus.FOUND);
     }
 
     /**
      * Delete tag.
      */
     @DeleteMapping("/blog/tag/{tagname}/")
-    public ResponseEntity<ResponseDto>deleteTag(@PathVariable String tagname)
+    public ResponseEntity<CustomMessage>deleteTag(@PathVariable String tagname)
     {
-        return new ResponseEntity<ResponseDto>(this.tagService.deleteTag(tagname),
+        return new ResponseEntity<>(this.tagService.deleteTag(tagname),
                 HttpStatus.GONE);
     }
 
@@ -66,11 +66,10 @@ public class TagController {
      * @param ?tag=presentTag&update=someTag
      */
     @PutMapping("/blog/tag/")
-    public ResponseEntity<ResponseDto> updateTag(@RequestParam(value = "tag") String tagname,
-                            @RequestParam(value = "update") String newTagName)
+    public ResponseEntity<CustomMessage> updateTag(@RequestParam(value = "tag") String tagname,
+                                               @RequestParam(value = "update") String newTagName)
     {
-        return new ResponseEntity<ResponseDto>(this.tagService.updateTag(tagname,newTagName),
+        return new ResponseEntity<>(this.tagService.updateTag(tagname,newTagName),
                                                 HttpStatus.CREATED);
     }
-
 }

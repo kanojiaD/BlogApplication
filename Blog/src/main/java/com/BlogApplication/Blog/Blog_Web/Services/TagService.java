@@ -2,11 +2,11 @@ package com.BlogApplication.Blog.Blog_Web.Services;
 
 import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
-import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
-import com.BlogApplication.Blog.Blog_Web.DTO.TagDetails;
+import com.BlogApplication.Blog.Blog_Web.DTO.TagDetailsDTO;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
 import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
-import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Message.CustomMessage;
 import com.BlogApplication.Blog.Blog_Web.Repository.ArticleRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.TagRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
@@ -40,7 +40,7 @@ public class TagService {
     UserRepository userRepository;
 
     @Deprecated
-    public ResponseDto createTag(Tag tag, String email) {
+    public CustomMessage createTag(Tag tag, String email) {
         tag.setCreatedBy(email);
         try{
             this.tagRepository.save(tag);
@@ -49,18 +49,18 @@ public class TagService {
         {
             throw new CustomException("Sorry, Tag has not been saved!!");
         }
-        return new ResponseDto("Successful","Tag "+tag.getTagname() +" has been saved successfully!!");
+        return new CustomMessage("Tag "+tag.getTagname() +" has been saved successfully!!");
     }
 
-    public List<TagDetails> viewAllTag() {
+    public List<TagDetailsDTO> viewAllTag() {
         List<Tag> lagList= this.tagRepository.findAll();
-        Type tagDetails = new TypeToken<List<TagDetails>>(){}.getType();
-        List<TagDetails> tagDetailsList = modelMapper.map(lagList, tagDetails);
-        return tagDetailsList;
+        Type tagDetails = new TypeToken<List<TagDetailsDTO>>(){}.getType();
+        List<TagDetailsDTO> tagDetailsDTOList = modelMapper.map(lagList, tagDetails);
+        return tagDetailsDTOList;
     }
 
     @Transactional
-    public ResponseDto deleteTag(String tagname) {
+    public CustomMessage deleteTag(String tagname) {
         Tag tag=tagRepository.findByTagName(tagname);
         //util.authenticateUserSameAsLogedInUser(tag.getCreatedBy(), "Authentication Failed!!");
         try {
@@ -75,13 +75,13 @@ public class TagService {
         }
         catch (Exception e)
         {
-            throw new CustomException("Failed");
+            throw new CustomException("Tag Not delete");
         }
-        return new ResponseDto("Successful", "Tag successfully deleted");
+        return new CustomMessage("Tag successfully deleted");
     }
 
     @Transactional
-    public ResponseDto updateTag(String tagname, String newTagName) {
+    public CustomMessage updateTag(String tagname, String newTagName) {
         Tag tag= tagRepository.findByTagName(tagname);
         System.out.println(tag.getTagId());
         util.authenticateUserSameAsLogedInUser(tag.getCreatedBy(), "Authentication Failed!!");
@@ -100,6 +100,6 @@ public class TagService {
         }
         tagRepository.save(newTag);
         if(tag.getArticles().size()==0) tagRepository.delete(tag);
-        return new ResponseDto("update", tagname +" update to "+newTagName+"." );
+        return  new CustomMessage(tagname +" update to "+newTagName+".");
     }
 }

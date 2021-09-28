@@ -1,9 +1,9 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleRequestDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleRequestDTO;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDTO;
 import com.BlogApplication.Blog.Blog_Web.Entity.Article;
+import com.BlogApplication.Blog.Blog_Web.Message.CustomMessage;
 import com.BlogApplication.Blog.Blog_Web.Services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,32 +20,33 @@ public class ArticleController {
     ArticleService articleService;
 
 
-    /**
-     * 1.
-     * This rest API is use for fetch all the article who are written by blogger.
-     * Authentication not required.
-     * @return : List of All Article.
-     */
-    @GetMapping("/blog/articles/")
-    public ResponseEntity<List<ArticleResponseDetails>> allArticle()
-    {
-        return new ResponseEntity<List<ArticleResponseDetails>>(this.articleService.allArticle(),
-                                                                HttpStatus.FOUND);
-    }
 
-    /**
-     * 2.
-     * This rest API is use for fetch the article by tag which belongs to the same tag that are given in pathvariable.
-     * Authentication not required.
-     * @Pathvariable : tagname
-     * @return : List of Article
-     */
-    @GetMapping("/blog/tag/{tagname}/articles/")
-    public ResponseEntity<List<ArticleResponseDetails>> getArticleByTag(@PathVariable String tagname)
-    {
-        return new ResponseEntity<List<ArticleResponseDetails>>(this.articleService.getArticleByTag(tagname),
-                                                                 HttpStatus.FOUND);
-    }
+//    /**
+//     * 1.
+//     * This rest API is use for fetch all the article who are written by blogger.
+//     * Authentication not required.
+//     * @return : List of All Article.
+//     */
+//    @GetMapping("/blog/articles/")
+//    public ResponseEntity<List<ArticleResponseDTO>> allArticle()
+//    {
+//        return new ResponseEntity<List<ArticleResponseDTO>>(this.articleService.allArticle(),
+//                                                                HttpStatus.FOUND);
+//    }
+//
+//    /**
+//     * 2.
+//     * This rest API is use for fetch the article by tag which belongs to the same tag that are given in pathvariable.
+//     * Authentication not required.
+//     * @Pathvariable : tagname
+//     * @return : List of Article
+//     */
+//    @GetMapping("/blog/tag/{tagname}/articles/")
+//    public ResponseEntity<List<ArticleResponseDTO>> getArticleByTag(@PathVariable String tagname)
+//    {
+//        return new ResponseEntity<List<ArticleResponseDTO>>(this.articleService.getArticleByTag(tagname),
+//                                                                 HttpStatus.FOUND);
+//    }
 
     /**
      * 3.
@@ -55,9 +56,9 @@ public class ArticleController {
      * @return : Article
      */
     @GetMapping("/blog/article/{slug}/")
-    public ResponseEntity<ArticleResponseDetails> viewArticleBySlug(@PathVariable String slug)
+    public ResponseEntity<ArticleResponseDTO> viewArticleBySlug(@PathVariable(value = "slug") String slug)
     {
-        return new ResponseEntity<ArticleResponseDetails>(this.articleService.viewArticleBySlug(slug),
+        return new ResponseEntity<ArticleResponseDTO>(this.articleService.viewArticleBySlug(slug),
                                                             HttpStatus.FOUND);
     }
 
@@ -70,10 +71,10 @@ public class ArticleController {
      * @return : Article
      */
     @PostMapping("/blog/article/")
-    public ResponseEntity<ArticleResponseDetails> createArticle(@Valid @RequestBody ArticleRequestDetails article,
-                                                                @RequestParam(value = "tag", required = false) String tagname)
+    public ResponseEntity<ArticleResponseDTO> createArticle(@Valid @RequestBody ArticleRequestDTO article,
+                                                            @RequestParam(value = "tag", required = false) String tagname)
     {
-        return new ResponseEntity<ArticleResponseDetails>(articleService.createArticle(tagname, article),
+        return new ResponseEntity<ArticleResponseDTO>(articleService.createArticle(tagname, article),
                                                             HttpStatus.CREATED);
     }
 
@@ -88,8 +89,8 @@ public class ArticleController {
      * @return : Article
      */
     @PutMapping("/blog/article/{articleid}/")
-    public ResponseEntity<ResponseDto> updateArticle(@PathVariable String articleid,
-                                                 @RequestBody Article article)
+    public ResponseEntity<CustomMessage> updateArticle(@PathVariable String articleid,
+                                                   @RequestBody Article article)
     {
         return new ResponseEntity<>(this.articleService.updateArticle(Long.parseLong(articleid), article),
                                     HttpStatus.CREATED);
@@ -102,11 +103,10 @@ public class ArticleController {
      * @Pathvariable : articleid
      * @return
      */
-    @DeleteMapping("blog/article/{articleid}/")
-    public ResponseEntity<ResponseDto> deleteArticle(@PathVariable String articleid)
-    {
+    @DeleteMapping("/blog/article/{articleid}/")
+    public ResponseEntity<CustomMessage> deleteArticle(@PathVariable String articleid) {
         return new ResponseEntity<>(this.articleService.deleteArticle(Long.parseLong(articleid)),
-                             HttpStatus.GONE);
+                HttpStatus.GONE);
     }
 
     /**
@@ -117,8 +117,8 @@ public class ArticleController {
      * @return : Article
      */
     @PutMapping("/blog/article/")
-    public ResponseEntity<ArticleResponseDetails> addTagInArticle(@RequestParam("id") Long articleid,
-                                                                  @RequestParam("tag") String tagname)
+    public ResponseEntity<ArticleResponseDTO> addTagInArticle(@RequestParam("id") Long articleid,
+                                                              @RequestParam("tag") String tagname)
     {
        return new ResponseEntity<>(this.articleService.addTagInArticle(articleid, tagname),
                              HttpStatus.CREATED);
@@ -129,8 +129,8 @@ public class ArticleController {
      * @param ?removetag=someTagName
      */
     @PutMapping("/blog/article/{articleId}/tag")
-    public ResponseEntity<ResponseDto> removeArticlesTag(@PathVariable(value = "articleId") Long id,
-                                    @RequestParam(value = "removetag") String tagname)
+    public ResponseEntity<CustomMessage> removeArticlesTag(@PathVariable(value = "articleId") Long id,
+                                                       @RequestParam(value = "removetag") String tagname)
     {
         return new ResponseEntity<>(this.articleService.removeArticlesTag(id, tagname),HttpStatus.GONE);
     }
@@ -140,28 +140,38 @@ public class ArticleController {
      * 8.
      * This API is use for pagination.
      * Authentication required.
+     * @param ?pagenumber=somePageNumber&pagesize=somePageSize
      * @return List of article.
      */
     @GetMapping("/blog/article/")
-    public ResponseEntity<List<ArticleResponseDetails>> getArticleByOrder()
+    public ResponseEntity<List<ArticleResponseDTO>> getArticleByOrder(@RequestParam(value = "pagenumber") Integer pagenumber,
+                                                                      @RequestParam(value = "pagesize", required = false) Integer pagesize)
     {
-        return new ResponseEntity<List<ArticleResponseDetails>>(this.articleService.getArticleByOrder(), HttpStatus.FOUND);
+        return new ResponseEntity<List<ArticleResponseDTO>>(this.articleService.getArticleByOrder(pagenumber, pagesize), HttpStatus.FOUND);
     }
 
     /**
      * API is use for search article by tag and editor and article name.
      * Authentication not required.
-     * @param ?tag=someTag&editor=someEditor&article=someArticleName
+     * @param ?tags=ListOfTag&authorName=someName&articleTitle=someArticle'sTitle
      * @return List of Article
      */
-    @GetMapping("/blog/searchArticle/")
-    public ResponseEntity<List<ArticleResponseDetails>> searchArticle(@RequestParam(value = "tag", required = false) String tagname,
-                                                       @RequestParam(value = "editor", required = false) String username,
-                                                       @RequestParam(value = "article", required = false) String title)
+    @GetMapping("/blog/articles/")
+    public ResponseEntity<List<ArticleResponseDTO>> searchArticle(@RequestParam(value = "tags", required = false) List<String> tagname,
+                                                                  @RequestParam(value = "authorName", required = false) String username,
+                                                                  @RequestParam(value = "articleTitle", required = false) String title)
 
     {
         return
         new ResponseEntity<>(this.articleService.searchArticle(tagname, username, title), HttpStatus.FOUND);
+    }
+
+
+
+    @PostMapping("/blog/addDummyData/")
+    public void addData()
+    {
+        articleService.addDummydata();
     }
 
 }

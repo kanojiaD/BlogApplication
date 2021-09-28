@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @Setter
 @Getter
-public class TagDetails {
+public class TagDetailsDTO {
     private String tagname;
     private String createdBy;
 }

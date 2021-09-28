@@ -2,7 +2,7 @@ package com.BlogApplication.Blog.Blog_Security.SecurityConfig;
 
 import com.BlogApplication.Blog.Blog_Security.Helper.JwtUtil;
 import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
-import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

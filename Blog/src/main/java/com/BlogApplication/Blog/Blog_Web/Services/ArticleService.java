@@ -1,19 +1,18 @@
 package com.BlogApplication.Blog.Blog_Web.Services;
 
 import com.BlogApplication.Blog.Blog_Security.Services.CustomUserDetailsService;
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleRequestDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
-import com.BlogApplication.Blog.Blog_Web.Entity.Article;
-import com.BlogApplication.Blog.Blog_Web.Entity.Users;
-import com.BlogApplication.Blog.Blog_Web.Entity.Tag;
-import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleRequestDTO;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDTO;
+import com.BlogApplication.Blog.Blog_Web.Data.DummyData;
+import com.BlogApplication.Blog.Blog_Web.Entity.*;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.ArticleNotFoundException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Message.CustomMessage;
 import com.BlogApplication.Blog.Blog_Web.Repository.ArticleRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.TagRepository;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import com.BlogApplication.Blog.Blog_Web.Utils.ServiceUtil;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,11 +21,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Type;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ArticleService {
@@ -45,33 +42,48 @@ public class ArticleService {
     ModelMapper modelMapper;
     @Autowired
     ServiceUtil util;
+    @Autowired
+    DummyData data;
 
 
-    public List<ArticleResponseDetails> allArticle() {
-        List<Article> article = articleRepository.findAll();
-        Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
-        List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(article, articleDetails);
-        return articleResponseDetailsList;
-    }
+//    public List<ArticleResponseDTO> allArticle() {
+//        List<Article> articles = articleRepository.findAll();
+//
+//        List<ArticleResponseDTO> articleResponseDTOs =new ArrayList<>();
+//        for(Article article: articles)
+//        {
+//            ArticleResponseDTO dto = modelMapper.map(article, ArticleResponseDTO.class);
+//            dto.setAuthor(article.getUsers().getEmail());
+//            articleResponseDTOs.add(dto);
+//        }
+//        return articleResponseDTOs;
+//    }
+
+
 
     @Transactional
-    public ArticleResponseDetails createArticle(String tagname,
-                                                ArticleRequestDetails requestArticle)
+    public ArticleResponseDTO createArticle(String tagname,
+                                            ArticleRequestDTO requestedArticle)
     {
         Article article= new Article();
-        String uuid=UUID.randomUUID().toString();
-        article= modelMapper.map(requestArticle, Article.class);
-        List<String> tagFromRequestBody= requestArticle.getTag();
 
-        article.setUuid(uuid);
-        article.setSlug(util.generateSlug(requestArticle.getTitle(),uuid));
-        article.setPublishedDate(new Date());
-        article.setUpdatedDate(new Date());
-
+        article= modelMapper.map(requestedArticle, Article.class);
+        List<String> tagFromRequestBody= requestedArticle.getTag();
+        String id=util.generateUniqueID();
+        article.setPostId(id);
+        article.setPublishedOn(new Timestamp(System.currentTimeMillis()));
+        article.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
         Users users = userRepository.findUserByEmail(customUserDetailsService.currentLogedInUserName());
         article.setUsers(users);
 
+        Terms terms= new Terms(util.generateSlug(article.getTitle(), id));
+        terms.setArticle(article);
+        article.addTerms(terms);
 
+        /**
+         * below tagname is optional which are taken from query parameter.
+         * it would be null if don't send the tagname.
+         */
         if(tagname!=null) {
             Tag tag = tagRepository.findByTagName(tagname);
             if(tag==null)
@@ -82,37 +94,45 @@ public class ArticleService {
             tag.addArticleInTag(article);
             article.addTagInArticle(tag);
         }
+
+        /**
+         * below list of tags are taking from @RequestBody.
+         * if the variable is missing then tags variable would be null
+         * otherwise, it would be empty or containing some tag name.
+         */
         if(tagFromRequestBody!=null)
         {
-            for (String requestBodyTag : tagFromRequestBody) {
-                Tag newTag = tagRepository.findByTagName(requestBodyTag);
-                if (newTag == null)
+            for (String tagToBeAdded : tagFromRequestBody) {
+                Tag getTag = tagRepository.findByTagName(tagToBeAdded);
+                if (getTag == null)
                 {
-                    newTag = new Tag(requestBodyTag, customUserDetailsService.currentLogedInUserName());
-                    tagRepository.save(newTag);
+                    getTag = new Tag(tagToBeAdded, customUserDetailsService.currentLogedInUserName());
+                    tagRepository.save(getTag);
                 }
-                newTag.addArticleInTag(article);
-                article.addTagInArticle(newTag);
+                getTag.addArticleInTag(article);
+                article.addTagInArticle(getTag);
             }
         }
-
         this.articleRepository.save(article);
-        ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
-        return articleResponseDetails;
+        ArticleResponseDTO articleResponseDTO = modelMapper.map(article, ArticleResponseDTO.class);
+        articleResponseDTO.setAuthor(article.getUsers().getEmail());
+        return articleResponseDTO;
     }
 
+
+
     @Transactional
-    public ResponseDto deleteArticle(long articleid) {
+    public CustomMessage deleteArticle(long articleid) {
         Article article= new Article();
         try {
             article = articleRepository.findById(articleid).get();
         }
         catch (Exception e)
         {
-            throw new CustomException("Article not exist!!");
+            throw new ArticleNotFoundException();
         }
+        
         util.authenticateUserSameAsLogedInUser(article.getUsers().getEmail(), "Not valid User for delete this article!!");
-
         List<Tag> tags= new ArrayList<>();
         tags.addAll(article.getTags());
         for(Tag tag : tags)
@@ -128,71 +148,82 @@ public class ArticleService {
                 tagService.deleteTag(tag.getTagname());
             }
         }
-
-        return new ResponseDto(article);
+        return new CustomMessage(article.getTitle()+" has been removed successfully!!");
     }
 
 
-    public List<ArticleResponseDetails> getArticleByTag(String tagname) {
-        Tag tag= this.tagRepository.findByTagName(tagname);
-        if(tag==null)
-        {
-            throw new CustomException("No Article contain the tag \'"+tagname+"\'");
-        }
-        List<Article> articles= tag.getArticles();
-        if(articles.isEmpty())
-        {
-            throw new CustomException("No article found for the tag \'"+tagname+"\'");
-        }
-        Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
-        List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(articles, articleDetails);
-        return articleResponseDetailsList;
-    }
 
-    public ArticleResponseDetails viewArticleBySlug(String slug) {
-        Article article=this.articleRepository.findArticleBySlug(slug);
+//    public List<ArticleResponseDTO> getArticleByTag(String tagname) {
+//        Tag tag= this.tagRepository.findByTagName(tagname);
+//        if(tag==null)
+//        {
+//            throw new CustomException("No Article contain the tag \'"+tagname+"\'");
+//        }
+//        List<Article> articles= tag.getArticles();
+//        if(articles.isEmpty())
+//        {
+//            throw new CustomException("No article found for the tag \'"+tagname+"\'");
+//        }
+//
+//        List<ArticleResponseDTO> articleResponseDTOs =new ArrayList<>();
+//        for(Article article: articles)
+//        {
+//            ArticleResponseDTO dto = modelMapper.map(article, ArticleResponseDTO.class);
+//            dto.setAuthor(article.getUsers().getEmail());
+//            articleResponseDTOs.add(dto);
+//        }
+//        return articleResponseDTOs;
+//    }
+
+
+
+    public ArticleResponseDTO viewArticleBySlug(String slug) {
+        String[] splittedSlug= slug.split("-");
+        Article article=this.articleRepository.findByPostID(splittedSlug[splittedSlug.length-1]);
         if(article==null)
         {
-            throw new CustomException("No Article found for the slug \'"+slug+"\'");
+            throw new ArticleNotFoundException();
         }
-        ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
-        return articleResponseDetails;
+        ArticleResponseDTO articleResponseDTO = modelMapper.map(article, ArticleResponseDTO.class);
+        articleResponseDTO.setAuthor(article.getUsers().getEmail());
+        return articleResponseDTO;
     }
 
-    public ResponseDto updateArticle(long articleid, Article article) {
+    public CustomMessage updateArticle(long articleid, Article article) {
         Article newArticle= new Article();
         try {
             newArticle = articleRepository.findById(articleid).get();
         }
         catch(Exception e)
         {
-            throw new CustomException("Article Not exist");
+            throw new ArticleNotFoundException();
         }
         util.authenticateUserSameAsLogedInUser(newArticle.getUsers().getEmail(), "Not valid User for update this article!!");
-        String msg= "";
+        String message= "";
         if(article.getTitle()!=null) {
-            msg+=newArticle.getTitle()+" updated to "+article.getTitle()+" ";
+            Terms terms= new Terms(util.generateSlug(article.getTitle(), newArticle.getPostId()));
+            newArticle.addTerms(terms);
             newArticle.setTitle(article.getTitle());
+            message+=newArticle.getTitle()+" updated to "+article.getTitle()+" ";
           }
         if(article.getContent()!=null)
         {
-            msg+=newArticle.getContent()+" updated to "+article.getContent();
+            message+=newArticle.getContent()+" updated to "+article.getContent();
             newArticle.setContent(article.getContent());
         }
-        newArticle.setUpdatedDate(new Date());
+        newArticle.setUpdatedOn(new Timestamp(System.currentTimeMillis()));
         this.articleRepository.save(newArticle);
-        ResponseDto responseDto= new ResponseDto("Updated Successful",msg);
-        return responseDto;
+        return new CustomMessage(message);
     }
 
-    public ArticleResponseDetails addTagInArticle(long articleid, String tagname) {
+    public ArticleResponseDTO addTagInArticle(long articleid, String tagname) {
         Article article= new Article();
         try{
             article= articleRepository.findById(articleid).get();
         }
         catch (Exception e)
         {
-            throw new CustomException("Article Not exist");
+            throw new ArticleNotFoundException();
         }
         util.authenticateUserSameAsLogedInUser(article.getUsers().getEmail(), "Not valid User for add tag in this article!!");
         Tag tag= tagRepository.findByTagName(tagname);
@@ -207,48 +238,64 @@ public class ArticleService {
         article.addTagInArticle(tag);
         articleRepository.save(article);
 
-        ArticleResponseDetails articleResponseDetails = modelMapper.map(article, ArticleResponseDetails.class);
-        return articleResponseDetails;
+        ArticleResponseDTO articleResponseDTO = modelMapper.map(article, ArticleResponseDTO.class);
+        return articleResponseDTO;
     }
 
-    public List<ArticleResponseDetails> getArticleByOrder() {
-        Pageable pageable= PageRequest.of(0, 3, Sort.by("publishedDate").descending());
+    public List<ArticleResponseDTO> getArticleByOrder(Integer pagenumber, Integer pagesize) {
+        if(pagesize==null) pagesize=3;
+        Pageable pageable= PageRequest.of(pagenumber, pagesize, Sort.by("publishedDate").descending());
         Page<Article> pageOfArticle= this.articleRepository.findPaginatedArticle(pageable);
         if(pageOfArticle==null) {
-            throw new CustomException("No Article found!!");
+            throw new ArticleNotFoundException();
         }
-        List<Article> listOfArticle= pageOfArticle.getContent();
-        Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
-        List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(listOfArticle, articleDetails);
-        return articleResponseDetailsList;
+        List<Article> articles= pageOfArticle.getContent();
+        List<ArticleResponseDTO> articleResponseDTOs =new ArrayList<>();
+        for(Article article: articles)
+        {
+            ArticleResponseDTO dto = modelMapper.map(article, ArticleResponseDTO.class);
+            dto.setAuthor(article.getUsers().getEmail());
+            articleResponseDTOs.add(dto);
+        }
+        return articleResponseDTOs;
     }
 
-    public List<ArticleResponseDetails> searchArticle(String tagname, String name,String title) {
-        List<Article> articleList= articleRepository.findAll();
+    public List<ArticleResponseDTO> searchArticle(List<String> tags, String name, String title) {
+        List<Article> articles= articleRepository.findAll();
         List<Article> finalList= new ArrayList<>();
-        for(Article article : articleList)
+        for(Article article : articles)
         {
-            if((title==null || article.getTitle().equals(title)) && (name==null || article.getUsers().getName().equals(name)))
+            if((title==null || article.getTitle().toLowerCase().contains(title.toLowerCase())) && (name==null || article.getUsers().getName().equalsIgnoreCase(name)))
             {
                 List<Tag> taglist= article.getTags();
                 for(Tag tag: taglist)
                 {
-                    if((tagname==null || tag.getTagname().equals(tagname)) && !finalList.contains(article))
+                    if((tags==null || tags.contains(tag.getTagname())) && !finalList.contains(article))
                         finalList.add(article);
                 }
             }
         }
-        Type articleDetails = new TypeToken<List<ArticleResponseDetails>>(){}.getType();
-        List<ArticleResponseDetails> articleResponseDetailsList = modelMapper.map(finalList, articleDetails);
-        return articleResponseDetailsList;
+        List<ArticleResponseDTO> articleResponseDTOs =new ArrayList<>();
+        for(Article article: finalList)
+        {
+            ArticleResponseDTO dto = modelMapper.map(article, ArticleResponseDTO.class);
+            dto.setAuthor(article.getUsers().getEmail());
+            articleResponseDTOs.add(dto);
+        }
+        return articleResponseDTOs;
     }
 
-    public ResponseDto removeArticlesTag(Long id, String tagname) {
+    public CustomMessage removeArticlesTag(Long id, String tagname) {
         Article article= articleRepository.getById(id);
         Tag tag= tagRepository.findByTagName(tagname);
         article.removeTagFromArticle(tag);
         tag.removeArticleFromTag(article);
         if(tag.getArticles().size()==0) tagRepository.delete(tag);
-        return new ResponseDto("Done",tagname+" tag removed from "+article.getTitle());
+        return new CustomMessage(tagname+" tag removed from "+article.getTitle());
+    }
+
+    public void addDummydata() {
+        //data.addDummyUsers();
+        data.addDummyArticles1();
     }
 }

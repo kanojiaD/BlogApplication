@@ -1,10 +1,10 @@
 package com.BlogApplication.Blog.Blog_Web.Controller;
 
-import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.BloggerDetails;
-import com.BlogApplication.Blog.Blog_Web.DTO.ResponseDto;
+import com.BlogApplication.Blog.Blog_Web.DTO.ArticleResponseDTO;
+import com.BlogApplication.Blog.Blog_Web.DTO.UserDTO;
 import com.BlogApplication.Blog.Blog_Web.Entity.Users;
-import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Message.CustomMessage;
 import com.BlogApplication.Blog.Blog_Web.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,10 +28,10 @@ public class UserController {
      * @return : A message that registration is successful or not.
      */
     @PostMapping("/blog/signup/")
-    public ResponseEntity<ResponseDto> userRegistration(@Valid @RequestBody Users users)
+    public ResponseEntity<CustomMessage> userRegistration(@Valid @RequestBody Users users)
     {
         try{
-            return new ResponseEntity<ResponseDto>(this.userService.userRegistration(users), HttpStatus.CREATED);
+            return new ResponseEntity<>(this.userService.userRegistration(users), HttpStatus.CREATED);
         }
         catch (Exception e)
         {
@@ -47,9 +47,9 @@ public class UserController {
      * @return : Blogger Details
      */
     @GetMapping("/blog/user/")
-    public ResponseEntity<BloggerDetails> getUser()
+    public ResponseEntity<UserDTO> getUser()
     {
-        return new ResponseEntity<BloggerDetails>(this.userService.getUser(), HttpStatus.OK);
+        return new ResponseEntity<UserDTO>(this.userService.getUser(), HttpStatus.OK);
     }
 
     /**
@@ -60,9 +60,9 @@ public class UserController {
      * @return : List of Article
      */
     @GetMapping("/blog/user/articles/")
-    public ResponseEntity<List<ArticleResponseDetails>> viewUserAllHisArticle()
+    public ResponseEntity<List<ArticleResponseDTO>> viewUserAllHisArticle()
     {
-        return new ResponseEntity<List<ArticleResponseDetails>>(this.userService.viewUserAllHisArticle(), HttpStatus.FOUND);
+        return new ResponseEntity<List<ArticleResponseDTO>>(this.userService.viewUserAllHisArticle(), HttpStatus.FOUND);
     }
 
     /**
@@ -72,7 +72,7 @@ public class UserController {
      * @return : ResponseDto.
      */
     @DeleteMapping("/blog/user/")
-    public ResponseEntity<ResponseDto> deleteUser()
+    public ResponseEntity<CustomMessage> deleteUser()
     {
         return new ResponseEntity<>(this.userService.deleteUser(), HttpStatus.GONE);
     }

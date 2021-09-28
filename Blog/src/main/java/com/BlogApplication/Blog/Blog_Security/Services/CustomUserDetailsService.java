@@ -1,7 +1,8 @@
 package com.BlogApplication.Blog.Blog_Security.Services;
 
 import com.BlogApplication.Blog.Blog_Web.Entity.Users;
-import com.BlogApplication.Blog.Blog_Web.ExceptionHandling.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.CustomException;
+import com.BlogApplication.Blog.Blog_Web.Exceptions.UserNotFoundException;
 import com.BlogApplication.Blog.Blog_Web.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String domain) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String domain){
         Users users = userRepository.findUserByEmail(domain);
         try
         {
@@ -30,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         catch(Exception e)
         {
-            throw new UsernameNotFoundException("User Not Registered!!");
+            throw new UserNotFoundException("User Not Registered!!");
         }
     }
 
