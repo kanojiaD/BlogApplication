@@ -28,7 +28,7 @@ public class PasswordService {
 
     public CustomMessage getOtp(String email) {
         if(userRepository.findUserByEmail(email)==null) throw new UserNotFoundException();
-        String otp = (int)(Math.random()*1000000)+"";
+        String otp = (Math.random()+"").substring(2,8);
         System.out.println(otp);
         mailService.sendMail(email, otp);
         OTP otpObject= new OTP();

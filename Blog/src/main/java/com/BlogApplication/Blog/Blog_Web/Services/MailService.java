@@ -12,9 +12,11 @@ public class MailService {
 
     private String Message(String otp)
     {
-        return "You're receiving this e-mail because you or someone else has requested a password reset for your user account at.\n\n" +
-                otp +" is the one time password to reset password\n\n" +
-                "If you did not request a password reset you can safely ignore this email.";
+        return
+                "<p>You're receiving this e-mail because you or someone else has requested a password reset for your user account at</p>" +
+                "<h1 style='color:tomato;'>" + otp + "</h1>" +
+                "<p> is the one time password to reset password</p>" +
+                "<p>If you did not request a password reset you can safely ignore this email.</p>" ;
     }
     public void sendMail(String email,String otp)
     {
@@ -46,7 +48,7 @@ public class MailService {
             mimeMessage.setFrom(from);
             mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
             mimeMessage.setSubject(subject);
-            mimeMessage.setText(message);
+            mimeMessage.setContent(message, "text/html; charset=utf-8");
             Transport.send(mimeMessage);
         }
         catch (Exception e)
